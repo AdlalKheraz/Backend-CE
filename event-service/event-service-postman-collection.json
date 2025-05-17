@@ -1,0 +1,90 @@
+{
+  "info": {
+    "name": "Chrono Event Service - Civilization API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Civilization",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Egypt\",\n  \"description\": \"Ancient civilization in North Africa\",\n  \"startDate\": \"3000-01-01\",\n  \"endDate\": \"0030-01-01\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/civilizations",
+          "host": ["{{base_url}}"],
+          "path": ["api", "civilizations"]
+        }
+      }
+    },
+    {
+      "name": "Get All Civilizations",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/civilizations",
+          "host": ["{{base_url}}"],
+          "path": ["api", "civilizations"]
+        }
+      }
+    },
+    {
+      "name": "Get Civilization by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/civilizations/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "civilizations", "1"]
+        }
+      }
+    },
+    {
+      "name": "Update Civilization",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Ancient Egypt\",\n  \"description\": \"Updated description\",\n  \"startDate\": \"3100-01-01\",\n  \"endDate\": \"0030-01-01\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/civilizations/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "civilizations", "1"]
+        }
+      }
+    },
+    {
+      "name": "Delete Civilization",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/api/civilizations/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "civilizations", "1"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8082",
+      "type": "string"
+    }
+  ]
+}
