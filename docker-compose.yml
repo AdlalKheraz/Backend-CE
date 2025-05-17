@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  mysql-auth:
+    image: mysql:8.0
+    container_name: mysql-auth
+    environment:
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: chrono
+      MYSQL_PASSWORD: chrono_pass
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - auth_data:/var/lib/mysql
+
+  mysql-event:
+    image: mysql:8.0
+    container_name: mysql-event
+    environment:
+      MYSQL_DATABASE: event_db
+      MYSQL_USER: chrono
+      MYSQL_PASSWORD: chrono_pass
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3308:3306"
+    volumes:
+      - event_data:/var/lib/mysql
+
+  mysql-media:
+    image: mysql:8.0
+    container_name: mysql-media
+    environment:
+      MYSQL_DATABASE: media_db
+      MYSQL_USER: chrono
+      MYSQL_PASSWORD: chrono_pass
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3309:3306"
+    volumes:
+      - media_data:/var/lib/mysql
+
+  mysql-comment:
+    image: mysql:8.0
+    container_name: mysql-comment
+    environment:
+      MYSQL_DATABASE: comment_db
+      MYSQL_USER: chrono
+      MYSQL_PASSWORD: chrono_pass
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3310:3306"
+    volumes:
+      - comment_data:/var/lib/mysql
+
+volumes:
+  auth_data:
+  event_data:
+  media_data:
+  comment_data:
