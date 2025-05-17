@@ -77,6 +77,7 @@ Le service est construit avec les technologies suivantes :
 | Fichier | Description | Fonctionnalité |
 |---------|-------------|----------------|
 | **AuthController.java** | Contrôleur REST | Expose les endpoints `/api/auth/register` et `/api/auth/login` |
+| **TestController.java** | Contrôleur de test | Expose les endpoints `/api/test/public` et `/api/test/protected` pour tester la sécurité |
 
 ## Flux d'interaction entre les composants
 
@@ -143,7 +144,9 @@ jwt.expiration=86400000  # 24 heures en millisecondes
 
 ## API Endpoints
 
-### Inscription
+### Endpoints d'authentification
+
+#### Inscription
 
 Enregistre un nouvel utilisateur dans le système.
 
@@ -168,7 +171,7 @@ POST /api/auth/register
 }
 ```
 
-### Connexion
+#### Connexion
 
 Authentifie un utilisateur existant.
 
@@ -193,12 +196,48 @@ POST /api/auth/login
 }
 ```
 
+### Endpoints de test
+
+#### Endpoint public
+
+Endpoint de test public qui ne nécessite pas d'authentification.
+
+```
+GET /api/test/public
+```
+
+**Réponse :**
+
+```
+Cet endpoint est public
+```
+
+#### Endpoint protégé
+
+Endpoint de test qui nécessite une authentification par token JWT.
+
+```
+GET /api/test/protected
+```
+
+**En-tête requis :**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Réponse :**
+
+```
+Cet endpoint est protégé et nécessite une authentification
+```
+
 ## Sécurité
 
-- Tous les endpoints, sauf `/api/auth/**`, nécessitent une authentification
+- Tous les endpoints, sauf `/api/auth/**` et `/api/test/public`, nécessitent une authentification
 - Les mots de passe sont hashés avec BCrypt
 - Les JWT générés ont une validité de 24 heures
 - Les tokens JWT contiennent les informations de l'utilisateur (email, rôle)
+- CORS est configuré pour permettre l'accès depuis toutes les origines
 
 ## Utilisation du JWT
 
@@ -243,54 +282,64 @@ La collection est organisée en deux dossiers principaux :
    - **Register** - Crée un nouvel utilisateur et génère un token JWT
    - **Login** - Authentifie un utilisateur existant et génère un token JWT
    
-2. **Tests** - Contient des exemples pour tester les endpoints protégés
-   - **Test Protected Endpoint** - Exemple de requête vers un endpoint protégé utilisant le token JWT
+2. **Tests** - Contient des exemples pour tester les endpoints de sécurité
+   - **Public Endpoint** - Teste l'accès à l'endpoint public sans authentification
+   - **Protected Endpoint** - Teste l'accès à l'endpoint protégé avec authentification JWT
 
 #### Fonctionnalités automatisées
 
-La collection contient également des scripts de test automatisés :
+La collection contient des scripts de test automatisés pour les deux endpoints d'authentification :
 
-- **Script de test après Login** - Enregistre automatiquement le token JWT dans la variable d'environnement `jwt_token` lorsque la connexion réussit
-- **Utilisation automatique du token** - La requête "Test Protected Endpoint" utilise automatiquement le token JWT stocké pour l'authentification
-
-#### Exemples de réponses
-
-Chaque requête contient des exemples de réponses pour :
-- Les cas de succès (code 200)
-- Les cas d'échec (code 401 pour authentification échouée)
+- Les requêtes **Register** et **Login** incluent des scripts qui enregistrent automatiquement le token JWT dans la variable d'environnement `jwt_token` lorsque la connexion réussit
+- La requête **Protected Endpoint** utilise automatiquement le token JWT stocké pour l'authentification
 
 #### Comment utiliser la collection
 
 1. **Configuration de l'environnement**
-   - Créez un environnement Postman
-   - Ajoutez une variable `jwt_token` (sera automatiquement remplie par les scripts)
-   - Sélectionnez cet environnement avant d'exécuter les tests
+   - Importez le fichier `postman-collection.json` dans Postman
+   - Créez un environnement Postman en cliquant sur "Environment" puis "Create Environment"
+   - Nommez l'environnement (ex: "Auth Service")
+   - Ajoutez une variable `jwt_token` (valeur initiale vide)
+   - Cliquez sur "Save"
+   - **Important**: Sélectionnez cet environnement dans la liste déroulante en haut à droite
 
-2. **Exécution des tests**
-   - Exécutez la requête "Register" pour créer un utilisateur
-   - Ou exécutez la requête "Login" pour vous connecter avec un utilisateur existant
-   - Le token sera automatiquement stocké pour les requêtes suivantes
-   - Exécutez "Test Protected Endpoint" pour vérifier que l'authentification fonctionne
+2. **Exécution des tests étape par étape**
+   - **Étape 1**: Testez l'endpoint public
+     - Sélectionnez la requête "Public Endpoint" dans le dossier "Tests"
+     - Cliquez sur "Send"
+     - Vérifiez que vous recevez une réponse 200 OK
+
+   - **Étape 2**: Inscrivez un nouvel utilisateur
+     - Sélectionnez la requête "Register" dans le dossier "Authentication"
+     - Modifiez l'email si nécessaire pour éviter les doublons
+     - Cliquez sur "Send"
+     - Vérifiez que vous recevez une réponse 200 OK avec un token
+     - Le token est automatiquement sauvegardé dans la variable `jwt_token`
+
+   - **Étape 3**: Testez l'endpoint protégé
+     - Sélectionnez la requête "Protected Endpoint" dans le dossier "Tests"
+     - Cliquez sur "Send"
+     - Vérifiez que vous recevez une réponse 200 OK
+
+   - **Étape 4**: Connectez-vous avec un utilisateur existant
+     - Sélectionnez la requête "Login" dans le dossier "Authentication"
+     - Assurez-vous que les identifiants correspondent à un utilisateur existant
+     - Cliquez sur "Send"
+     - Vérifiez que vous recevez une réponse 200 OK avec un token
+     - Le token est automatiquement mis à jour dans la variable `jwt_token`
 
 3. **Exécution de la collection complète**
-   - Vous pouvez exécuter toute la collection en séquence
-   - La collection est configurée pour s'inscrire, se connecter et tester un endpoint protégé
+   - Cliquez sur le nom de la collection "Chrono Auth Service"
+   - Cliquez sur le bouton "Run" (flèche vers la droite)
+   - Sélectionnez toutes les requêtes dans l'ordre: Public Endpoint, Register, Protected Endpoint, Login
+   - Cliquez sur "Run Chrono Auth Service"
+   - Vérifiez que tous les tests passent avec succès
 
-### Guide de test manuel
+### Résolution des problèmes courants
 
-1. **Inscription d'un utilisateur :**
-   - Envoyez une requête POST à `http://localhost:8081/api/auth/register`
-   - Avec le corps JSON : `{"email": "user@example.com", "password": "password123"}`
-   - Vous recevrez un token JWT dans la réponse
-
-2. **Connexion d'un utilisateur :**
-   - Envoyez une requête POST à `http://localhost:8081/api/auth/login`
-   - Avec le corps JSON : `{"email": "user@example.com", "password": "password123"}`
-   - Vous recevrez un token JWT dans la réponse
-
-3. **Utilisation du token :**
-   - Copiez le token reçu
-   - Ajoutez-le dans l'en-tête `Authorization` sous la forme `Bearer <token>` pour les requêtes vers d'autres services protégés
+- **Erreur 403 Forbidden**: Assurez-vous que l'en-tête Content-Type est correctement défini à "application/json" pour les requêtes POST.
+- **Erreur 401 Unauthorized**: Vérifiez que le token JWT est correctement inclus dans l'en-tête Authorization et qu'il est précédé de "Bearer ".
+- **Variable d'environnement non définie**: Vérifiez que vous avez bien sélectionné l'environnement créé dans la liste déroulante en haut à droite de Postman.
 
 ## Intégration avec d'autres services
 

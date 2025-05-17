@@ -11,6 +11,24 @@
       "item": [
         {
           "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Enregistrement automatique du token JWT pour les requêtes suivantes",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        pm.environment.set(\"jwt_token\", jsonData.token);",
+                  "        console.log(\"Token JWT enregistré dans la variable d'environnement 'jwt_token'\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -125,7 +143,7 @@
                 "login"
               ]
             },
-            "description": "Authentifie un utilisateur et génère un token JWT"
+            "description": "Authentifie un utilisateur existant et génère un token JWT"
           },
           "response": [
             {
@@ -215,7 +233,60 @@
       "name": "Tests",
       "item": [
         {
-          "name": "Test Protected Endpoint",
+          "name": "Public Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/test/public",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "test",
+                "public"
+              ]
+            },
+            "description": "Endpoint public qui ne nécessite pas d'authentification"
+          },
+          "response": [
+            {
+              "name": "Public Access",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8081/api/test/public",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8081",
+                  "path": [
+                    "api",
+                    "test",
+                    "public"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain;charset=UTF-8"
+                }
+              ],
+              "body": "Cet endpoint est public"
+            }
+          ]
+        },
+        {
+          "name": "Protected Endpoint",
           "request": {
             "auth": {
               "type": "bearer",
@@ -242,7 +313,7 @@
                 "protected"
               ]
             },
-            "description": "Exemple d'endpoint protégé nécessitant un token JWT valide"
+            "description": "Endpoint protégé nécessitant un token JWT valide"
           },
           "response": [
             {
@@ -271,14 +342,14 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "json",
+              "_postman_previewlanguage": "text",
               "header": [
                 {
                   "key": "Content-Type",
-                  "value": "application/json"
+                  "value": "text/plain;charset=UTF-8"
                 }
               ],
-              "body": "{\n    \"message\": \"Accès autorisé à la ressource protégée\"\n}"
+              "body": "Cet endpoint est protégé et nécessite une authentification"
             },
             {
               "name": "Unauthorized Access",
