@@ -40,21 +40,7 @@ services:
     volumes:
       - media_data:/var/lib/mysql
 
-  mysql-comment:
-    image: mysql:8.0
-    container_name: mysql-comment
-    environment:
-      MYSQL_DATABASE: comment_db
-      MYSQL_USER: chrono
-      MYSQL_PASSWORD: chrono_pass
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3310:3306"
-    volumes:
-      - comment_data:/var/lib/mysql
-
 volumes:
   auth_data:
   event_data:
   media_data:
-  comment_data:
