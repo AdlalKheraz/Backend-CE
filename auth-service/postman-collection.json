@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "3f7b0f1c-5e9b-4b4c-9ae7-2a6f76a3fc67",
     "name": "Chrono Auth Service",
-    "description": "Collection pour tester les endpoints du service d'authentification",
+    "description": "Collection pour tester les endpoints du service d'authentification avec support des cookies",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -23,6 +23,10 @@
                   "        pm.environment.set(\"jwt_token\", jsonData.token);",
                   "        console.log(\"Token JWT enregistré dans la variable d'environnement 'jwt_token'\");",
                   "    }",
+                  "    // Vérification de la présence du cookie",
+                  "    pm.test(\"Cookie JWT est présent\", function() {",
+                  "        pm.expect(pm.cookies.has(\"jwt\")).to.be.true;",
+                  "    });",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -42,61 +46,19 @@
               "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8081/api/auth/register",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/auth/register",
               "host": [
-                "localhost"
+                "{{base_url}}"
               ],
-              "port": "8081",
               "path": [
                 "api",
                 "auth",
                 "register"
               ]
             },
-            "description": "Enregistre un nouvel utilisateur et génère un token JWT"
+            "description": "Enregistre un nouvel utilisateur, génère un token JWT et définit un cookie"
           },
-          "response": [
-            {
-              "name": "Successful Registration",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
-                },
-                "url": {
-                  "raw": "http://localhost:8081/api/auth/register",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8081",
-                  "path": [
-                    "api",
-                    "auth",
-                    "register"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3MTY4OTAyODUsImV4cCI6MTcxNjk3NjY4NX0.example-jwt-token\"\n}"
-            }
-          ]
+          "response": []
         },
         {
           "name": "Login",
@@ -112,6 +74,10 @@
                   "        pm.environment.set(\"jwt_token\", jsonData.token);",
                   "        console.log(\"Token JWT enregistré dans la variable d'environnement 'jwt_token'\");",
                   "    }",
+                  "    // Vérification de la présence du cookie",
+                  "    pm.test(\"Cookie JWT est présent\", function() {",
+                  "        pm.expect(pm.cookies.has(\"jwt\")).to.be.true;",
+                  "    });",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -131,103 +97,68 @@
               "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8081/api/auth/login",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/auth/login",
               "host": [
-                "localhost"
+                "{{base_url}}"
               ],
-              "port": "8081",
               "path": [
                 "api",
                 "auth",
                 "login"
               ]
             },
-            "description": "Authentifie un utilisateur existant et génère un token JWT"
+            "description": "Authentifie un utilisateur existant, génère un token JWT et définit un cookie"
           },
-          "response": [
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
             {
-              "name": "Successful Login",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Message de déconnexion reçu\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"Déconnexion réussie\");",
+                  "});",
+                  "",
+                  "pm.test(\"Cookie JWT est supprimé ou expiré\", function() {",
+                  "    const jwtCookie = pm.cookies.get(\"jwt\");",
+                  "    pm.expect(!jwtCookie || jwtCookie === \"\").to.be.true;",
+                  "});",
+                  "",
+                  "// Effacer le token JWT de l'environnement",
+                  "pm.environment.unset(\"jwt_token\");"
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
-                },
-                "url": {
-                  "raw": "http://localhost:8081/api/auth/login",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8081",
-                  "path": [
-                    "api",
-                    "auth",
-                    "login"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3MTY4OTAyODUsImV4cCI6MTcxNjk3NjY4NX0.example-jwt-token\"\n}"
-            },
-            {
-              "name": "Invalid Credentials",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"wrong_password\"\n}"
-                },
-                "url": {
-                  "raw": "http://localhost:8081/api/auth/login",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8081",
-                  "path": [
-                    "api",
-                    "auth",
-                    "login"
-                  ]
-                }
-              },
-              "status": "Unauthorized",
-              "code": 401,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n    \"timestamp\": \"2025-05-17T12:31:25.123+00:00\",\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Bad credentials\",\n    \"path\": \"/api/auth/login\"\n}"
+                "type": "text/javascript"
+              }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Déconnecte l'utilisateur en invalidant le cookie JWT"
+          },
+          "response": []
         }
       ],
-      "description": "Endpoints d'authentification pour l'inscription et la connexion"
+      "description": "Endpoints d'authentification pour l'inscription, la connexion et la déconnexion"
     },
     {
       "name": "Tests",
@@ -238,12 +169,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/test/public",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/test/public",
               "host": [
-                "localhost"
+                "{{base_url}}"
               ],
-              "port": "8081",
               "path": [
                 "api",
                 "test",
@@ -252,41 +181,43 @@
             },
             "description": "Endpoint public qui ne nécessite pas d'authentification"
           },
-          "response": [
-            {
-              "name": "Public Access",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8081/api/test/public",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8081",
-                  "path": [
-                    "api",
-                    "test",
-                    "public"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "text/plain;charset=UTF-8"
-                }
-              ],
-              "body": "Cet endpoint est public"
-            }
-          ]
+          "response": []
         },
         {
-          "name": "Protected Endpoint",
+          "name": "Protected Endpoint (Cookie Auth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200 OK avec authentification par cookie\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/protected",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "test",
+                "protected"
+              ]
+            },
+            "description": "Endpoint protégé utilisant l'authentification par cookie JWT"
+          },
+          "response": []
+        },
+        {
+          "name": "Protected Endpoint (Bearer Auth)",
           "request": {
             "auth": {
               "type": "bearer",
@@ -301,90 +232,60 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/test/protected",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/test/protected",
               "host": [
-                "localhost"
+                "{{base_url}}"
               ],
-              "port": "8081",
               "path": [
                 "api",
                 "test",
                 "protected"
               ]
             },
-            "description": "Endpoint protégé nécessitant un token JWT valide"
+            "description": "Endpoint protégé utilisant l'authentification par Bearer token JWT"
           },
-          "response": [
+          "response": []
+        },
+        {
+          "name": "Cookie Test",
+          "event": [
             {
-              "name": "Authorized Access",
-              "originalRequest": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3MTY4OTAyODUsImV4cCI6MTcxNjk3NjY4NX0.example-jwt-token"
-                  }
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Vérifie le statut du cookie\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('cookieStatus');",
+                  "});"
                 ],
-                "url": {
-                  "raw": "http://localhost:8081/api/test/protected",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8081",
-                  "path": [
-                    "api",
-                    "test",
-                    "protected"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "text/plain;charset=UTF-8"
-                }
-              ],
-              "body": "Cet endpoint est protégé et nécessite une authentification"
-            },
-            {
-              "name": "Unauthorized Access",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8081/api/test/protected",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8081",
-                  "path": [
-                    "api",
-                    "test",
-                    "protected"
-                  ]
-                }
-              },
-              "status": "Unauthorized",
-              "code": 401,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n    \"timestamp\": \"2025-05-17T12:32:15.456+00:00\",\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Full authentication is required to access this resource\",\n    \"path\": \"/api/test/protected\"\n}"
+                "type": "text/javascript"
+              }
             }
-          ]
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/cookie",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "test",
+                "cookie"
+              ]
+            },
+            "description": "Endpoint pour tester la présence des cookies"
+          },
+          "response": []
         }
       ],
-      "description": "Endpoints pour tester la validation du token JWT"
+      "description": "Endpoints pour tester l'authentification par cookie et token JWT"
     }
   ],
   "event": [

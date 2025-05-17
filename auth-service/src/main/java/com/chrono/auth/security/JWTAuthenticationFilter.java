@@ -13,6 +13,7 @@ import jakarta.servlet.GenericFilter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,31 +22,39 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class JWTAuthenticationFilter extends GenericFilter {
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+    private static final String JWT_COOKIE_NAME = "jwt";
+    
     private final JWTService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final HttpServletRequest req = (HttpServletRequest) request;
-        final String authHeader = req.getHeader("Authorization");
         final String requestUri = req.getRequestURI();
-        
-        // Log pour debug
-        log.debug("Request URI: {}, Auth header: {}", requestUri, authHeader != null ? "Present" : "Absent");
         
         // Skip le filtre pour les chemins publics
         if (requestUri.startsWith("/api/auth/") || requestUri.equals("/api/test/public")) {
             chain.doFilter(request, response);
             return;
         }
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        
+        // Extraire le token JWT (d'abord des cookies, puis du header)
+        String jwt = extractTokenFromCookie(req);
+        if (jwt == null) {
+            jwt = extractTokenFromHeader(req);
+        }
+        
+        log.debug("Request URI: {}, JWT token: {}", requestUri, jwt != null ? "Present" : "Absent");
+        
+        // Si aucun token trouvé, continuer la chaîne de filtres
+        if (jwt == null) {
             chain.doFilter(request, response);
             return;
         }
-
+        
         try {
-            String jwt = authHeader.substring(7);
             String email = jwtService.extractEmail(jwt);
             
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -60,9 +69,28 @@ public class JWTAuthenticationFilter extends GenericFilter {
         } catch (Exception e) {
             log.error("Erreur lors de la validation du token JWT: {}", e.getMessage());
             // Ne pas propager l'exception, continuer la chaîne de filtres
-            // pour que Spring Security gère l'erreur d'authentification
         }
         
         chain.doFilter(request, response);
+    }
+    
+    private String extractTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (JWT_COOKIE_NAME.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+    
+    private String extractTokenFromHeader(HttpServletRequest request) {
+        final String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            return authHeader.substring(BEARER_PREFIX.length());
+        }
+        return null;
     }
 }
