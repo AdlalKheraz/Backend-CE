@@ -35,6 +35,7 @@ public class AuthService {
     }
 
     public AuthResponse authenticate(AuthRequest request) {
+        System.out.println("user authentication");
         authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String token = jwtService.generateToken(user);
