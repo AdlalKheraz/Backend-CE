@@ -2,6 +2,7 @@ package com.chrono.event.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,11 +17,11 @@ import com.chrono.event.service.EventService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/events")
-@RequiredArgsConstructor
+@RequestMapping("/events")
 public class EventController {
 
-    private final EventService eventService;
+    @Autowired
+    private EventService eventService;
 
     @PostMapping
     public Event create(@RequestBody EventDTO dto) {
