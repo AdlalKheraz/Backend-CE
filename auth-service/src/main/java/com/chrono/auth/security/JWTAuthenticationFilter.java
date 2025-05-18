@@ -2,6 +2,7 @@ package com.chrono.auth.security;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,14 +21,15 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JWTAuthenticationFilter extends GenericFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String JWT_COOKIE_NAME = "jwt";
     
-    private final JWTService jwtService;
-    private final UserDetailsServiceImpl userDetailsService;
+    @Autowired
+    private JWTService jwtService;
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -35,7 +37,8 @@ public class JWTAuthenticationFilter extends GenericFilter {
         final String requestUri = req.getRequestURI();
         
         // Skip le filtre pour les chemins publics
-        if (requestUri.startsWith("/api/auth/") || requestUri.equals("/api/test/public")) {
+        if (requestUri.startsWith("/auth/") || requestUri.equals("/test/public")) {
+            System.out.println("starts with /auth/");
             chain.doFilter(request, response);
             return;
         }
