@@ -1,6 +1,9 @@
+c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\config\SecurityConfig.java
+c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\config\WebConfig.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\CivilizationController.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\CommentController.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\EventController.java
+c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\UserController.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\dto\CommentDTO.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\dto\EventDTO.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\entity\Civilization.java
@@ -11,6 +14,8 @@ c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\E
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\repository\CivilizationRepository.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\repository\CommentRepository.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\repository\EventRepository.java
+c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\security\JwtAuthFilter.java
+c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\security\JwtUtil.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\CivilizationService.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\CommentService.java
 c:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\EventService.java

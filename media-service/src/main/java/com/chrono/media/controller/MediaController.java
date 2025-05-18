@@ -13,22 +13,33 @@ import com.chrono.media.dto.MediaRequest;
 import com.chrono.media.dto.MediaResponse;
 import com.chrono.media.service.MediaService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/media")
 @RequiredArgsConstructor
 public class MediaController {
 
+    private static final String USER_ID_ATTRIBUTE = "userId";
+    
     private final MediaService mediaService;
 
     @PostMapping
-    public MediaResponse addMedia(@RequestBody MediaRequest request) {
+    public MediaResponse addMedia(@RequestBody MediaRequest request, HttpServletRequest httpRequest) {
+        String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
+        log.info("Ajout d'un média par l'utilisateur: {}", userId);
+        
         return mediaService.addMedia(request);
     }
 
     @GetMapping("/event/{eventId}")
-    public List<MediaResponse> getMediaByEvent(@PathVariable Long eventId) {
+    public List<MediaResponse> getMediaByEvent(@PathVariable Long eventId, HttpServletRequest httpRequest) {
+        String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
+        log.info("Récupération des médias de l'événement: {} par l'utilisateur: {}", eventId, userId);
+        
         return mediaService.getMediaByEvent(eventId);
     }
 }
