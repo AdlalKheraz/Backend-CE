@@ -2,6 +2,7 @@ package com.chrono.auth.config;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,11 +23,12 @@ import com.chrono.auth.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JWTAuthenticationFilter jwtAuthFilter;
-    private final UserDetailsServiceImpl userDetailsService;
+    @Autowired
+    private JWTAuthenticationFilter jwtAuthFilter;
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -35,9 +37,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/test/public").permitAll()
-                        .requestMatchers("/api/test/cookie").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/test/public").permitAll()
+                        .requestMatchers("/test/cookie").permitAll()
                         .anyRequest().authenticated())
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
