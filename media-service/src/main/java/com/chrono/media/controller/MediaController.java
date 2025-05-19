@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/media")
+@RequestMapping("/")
 @RequiredArgsConstructor
 public class MediaController {
 

@@ -11,13 +11,13 @@ import com.chrono.event.entity.Event;
 import com.chrono.event.repository.CivilizationRepository;
 import com.chrono.event.repository.EventRepository;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
 public class EventService {
 
+    @Autowired
     private EventRepository eventRepository;
 
+    @Autowired
     private CivilizationRepository civilizationRepository;
 
     public Event createEvent(EventDTO dto) {
