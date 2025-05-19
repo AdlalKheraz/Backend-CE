@@ -1,0 +1,765 @@
+{
+	"info": {
+		"_postman_id": "6b2d7d3c-5b43-4eef-b1c5-7f1c32e8c3e9",
+		"name": "Chrono Microservices Tests",
+		"description": "Collection pour tester tous les endpoints des microservices Chrono",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "civilizationId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "eventId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Auth Service",
+			"item": [
+				{
+					"name": "1.1 Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Afficher le résultat brut pour débogage",
+									"console.log(\"Raw response:\", responseBody);",
+									"",
+									"// Vérifier que la réponse est bien du JSON",
+									"try {",
+									"    var jsonData = pm.response.json();",
+									"    console.log(\"Parsed JSON:\", jsonData);",
+									"    ",
+									"    // Stocker le token s'il existe",
+									"    if (jsonData && jsonData.token) {",
+									"        pm.globals.set(\"token\", jsonData.token);",
+									"        console.log(\"Token saved:\", jsonData.token.substring(0, 20) + '...');",
+									"    } else {",
+									"        console.log(\"No token found in response\");",
+									"    }",
+									"} catch (e) {",
+									"    console.error(\"Error parsing response: \", e);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"utilisateur@example.com\",\n    \"password\": \"motdepasse123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Créer un nouvel utilisateur"
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Afficher le résultat brut pour débogage",
+									"console.log(\"Raw response:\", responseBody);",
+									"",
+									"// Vérifier que la réponse est bien du JSON",
+									"try {",
+									"    var jsonData = pm.response.json();",
+									"    console.log(\"Parsed JSON:\", jsonData);",
+									"    ",
+									"    // Stocker le token s'il existe",
+									"    if (jsonData && jsonData.token) {",
+									"        pm.globals.set(\"token\", jsonData.token);",
+									"        console.log(\"Token saved:\", jsonData.token.substring(0, 20) + '...');",
+									"    } else {",
+									"        console.log(\"No token found in response\");",
+									"    }",
+									"} catch (e) {",
+									"    console.error(\"Error parsing response: \", e);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"utilisateur@example.com\",\n    \"password\": \"motdepasse123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Connecter un utilisateur existant"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests pour le service d'authentification"
+		},
+		{
+			"name": "2. Civilization Management",
+			"item": [
+				{
+					"name": "2.1 Create Civilization (Empire Romain)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Afficher le résultat brut pour débogage",
+									"console.log(\"Raw response:\", responseBody);",
+									"",
+									"// Vérifier que la réponse est bien du JSON",
+									"try {",
+									"    var jsonData = pm.response.json();",
+									"    console.log(\"Parsed JSON:\", jsonData);",
+									"    ",
+									"    // Stocker l'ID de la civilisation s'il existe",
+									"    if (jsonData && jsonData.id) {",
+									"        pm.globals.set(\"civilizationId\", jsonData.id);",
+									"        console.log(\"Civilization ID saved:\", jsonData.id);",
+									"    } else {",
+									"        console.log(\"No civilization ID found in response\");",
+									"    }",
+									"} catch (e) {",
+									"    console.error(\"Error parsing response: \", e);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Log le token avant la requête pour vérifier qu'il est bien défini",
+									"console.log(\"Using token: \", pm.globals.get(\"token\") ? pm.globals.get(\"token\").substring(0, 20) + '...' : \"<undefined>\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Empire Romain\",\n    \"description\": \"L'Empire romain est l'un des plus grands empires de l'histoire\",\n    \"startDate\": \"0027-01-01\",\n    \"endDate\": \"0476-09-04\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/civilizations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"civilizations"
+							]
+						},
+						"description": "Création d'une civilisation (Empire Romain - avec des dates positives)"
+					},
+					"response": []
+				},
+				{
+					"name": "2.1 Alt Create Civilization (Direct to Event Service)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Afficher le résultat brut pour débogage",
+									"console.log(\"Raw response:\", responseBody);",
+									"",
+									"// Vérifier que la réponse est bien du JSON",
+									"try {",
+									"    var jsonData = pm.response.json();",
+									"    console.log(\"Parsed JSON:\", jsonData);",
+									"    ",
+									"    // Stocker l'ID de la civilisation s'il existe",
+									"    if (jsonData && jsonData.id) {",
+									"        pm.globals.set(\"civilizationId\", jsonData.id);",
+									"        console.log(\"Civilization ID saved:\", jsonData.id);",
+									"    } else {",
+									"        console.log(\"No civilization ID found in response\");",
+									"    }",
+									"} catch (e) {",
+									"    console.error(\"Error parsing response: \", e);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Empire Romain (Direct)\",\n    \"description\": \"L'Empire romain est l'un des plus grands empires de l'histoire\",\n    \"startDate\": \"0027-01-01\",\n    \"endDate\": \"0476-09-04\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/civilizations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"civilizations"
+							]
+						},
+						"description": "Test direct au service event, sans passer par la gateway"
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Get All Civilizations",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/civilizations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"civilizations"
+							]
+						},
+						"description": "Récupérer toutes les civilisations"
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Update Civilization",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Empire Romain (mis à jour)\",\n    \"description\": \"L'Empire romain est l'un des plus grands empires de l'histoire, avec une grande influence culturelle et politique\",\n    \"startDate\": \"0027-01-01\",\n    \"endDate\": \"0476-09-04\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"civilizations",
+								"{{civilizationId}}"
+							]
+						},
+						"description": "Mettre à jour une civilisation existante"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests pour la gestion des civilisations"
+		},
+		{
+			"name": "3. Events Management",
+			"item": [
+				{
+					"name": "3.1 Create Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Afficher le résultat brut pour débogage",
+									"console.log(\"Raw response:\", responseBody);",
+									"",
+									"// Vérifier que la réponse est bien du JSON",
+									"try {",
+									"    var jsonData = pm.response.json();",
+									"    console.log(\"Parsed JSON:\", jsonData);",
+									"    ",
+									"    // Stocker l'ID de l'événement s'il existe",
+									"    if (jsonData && jsonData.id) {",
+									"        pm.globals.set(\"eventId\", jsonData.id);",
+									"        console.log(\"Event ID saved:\", jsonData.id);",
+									"    } else {",
+									"        console.log(\"No event ID found in response\");",
+									"    }",
+									"} catch (e) {",
+									"    console.error(\"Error parsing response: \", e);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Fondation de Rome\",\n    \"description\": \"La légendaire fondation de la ville de Rome\",\n    \"date\": \"0753-04-21\",\n    \"civilizationId\": {{civilizationId}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events"
+							]
+						},
+						"description": "Créer un nouvel événement historique"
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Get All Events",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events"
+							]
+						},
+						"description": "Récupérer tous les événements"
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 Get Events By Civilization",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events/civilization/{{civilizationId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"civilization",
+								"{{civilizationId}}"
+							]
+						},
+						"description": "Récupérer les événements par civilisation"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests pour la gestion des événements historiques"
+		},
+		{
+			"name": "4. Comments Management",
+			"item": [
+				{
+					"name": "4.1 Create Comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"authorEmail\": \"utilisateur@example.com\",\n    \"content\": \"Un événement fondateur qui mêle mythe et réalité historique.\",\n    \"eventId\": {{eventId}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"comments"
+							]
+						},
+						"description": "Créer un commentaire sur un événement"
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 Get Comments By Event",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/comments/event/{{eventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"comments",
+								"event",
+								"{{eventId}}"
+							]
+						},
+						"description": "Récupérer les commentaires d'un événement"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests pour la gestion des commentaires"
+		},
+		{
+			"name": "5. Media Management",
+			"item": [
+				{
+					"name": "5.1 Add Media",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"url\": \"https://example.com/images/rome_foundation.jpg\",\n    \"type\": \"IMAGE\",\n    \"eventId\": {{eventId}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/media",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media"
+							]
+						},
+						"description": "Ajouter un média à un événement"
+					},
+					"response": []
+				},
+				{
+					"name": "5.2 Get Media By Event",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/media/event/{{eventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media",
+								"event",
+								"{{eventId}}"
+							]
+						},
+						"description": "Récupérer les médias d'un événement"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests pour la gestion des médias"
+		},
+		{
+			"name": "6. Unauthorized Tests",
+			"item": [
+				{
+					"name": "6.1 Get Events Without Token",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events"
+							]
+						},
+						"description": "Tester l'accès sans token (doit échouer)"
+					},
+					"response": []
+				},
+				{
+					"name": "6.2 Get Media Without Token",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/media/event/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media",
+								"event",
+								"1"
+							]
+						},
+						"description": "Tester l'accès sans token (doit échouer)"
+					},
+					"response": []
+				},
+				{
+					"name": "6.3 Create Civilization With Invalid Token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "invalid.token.value",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Grèce Antique\",\n    \"description\": \"Civilisation grecque antique\",\n    \"startDate\": \"0800-01-01\",\n    \"endDate\": \"0146-01-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/civilizations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"civilizations"
+							]
+						},
+						"description": "Tester l'accès avec un token invalide (doit échouer)"
+					},
+					"response": []
+				}
+			],
+			"description": "Test des cas d'erreur et d'accès non autorisé"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+} 

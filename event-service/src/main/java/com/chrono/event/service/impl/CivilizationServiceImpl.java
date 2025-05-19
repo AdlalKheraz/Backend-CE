@@ -2,19 +2,21 @@ package com.chrono.event.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.chrono.event.entity.Civilization;
 import com.chrono.event.repository.CivilizationRepository;
 import com.chrono.event.service.CivilizationService;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class CivilizationServiceImpl implements CivilizationService {
 
-    private final CivilizationRepository repository;
+    @Autowired
+    private CivilizationRepository repository;
 
     @Override
     public List<Civilization> getAll() {

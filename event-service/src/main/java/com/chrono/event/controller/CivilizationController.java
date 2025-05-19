@@ -2,6 +2,7 @@ package com.chrono.event.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,14 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.chrono.event.entity.Civilization;
 import com.chrono.event.service.CivilizationService;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/civilizations")
-@RequiredArgsConstructor
+@RequestMapping("/civilizations")
 public class CivilizationController {
 
-    private final CivilizationService civilizationService;
+    @Autowired
+    private CivilizationService civilizationService;
 
     @GetMapping
     public List<Civilization> getAll() {

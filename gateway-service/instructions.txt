@@ -1,0 +1,10 @@
+Modifiez le fichier gateway-service/src/main/resources/application.properties pour échanger l'ordre des filtres comme suit:
+
+# Route vers Event Service (avec filtre JWT)
+spring.cloud.gateway.routes[2].id=event-service
+spring.cloud.gateway.routes[2].uri=http://localhost:8083
+spring.cloud.gateway.routes[2].predicates[0]=Path=/api/events/**,/api/civilizations/**,/api/comments/**
+spring.cloud.gateway.routes[2].filters[0]=JwtAuthenticationFilter
+spring.cloud.gateway.routes[2].filters[1]=RewritePath=/api/(?<segment>.*), /
+
+Après la modification, redémarrez votre gateway-service
