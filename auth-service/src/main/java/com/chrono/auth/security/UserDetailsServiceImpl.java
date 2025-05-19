@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.chrono.auth.repository.UserRepository;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
