@@ -13,8 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -39,20 +43,32 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
+            String path = request.getPath().toString();
+            
+            log.debug("JWT Filter - Traitement de la requête: {}", path);
             
             // Skip pour les routes d'auth
             if (isAuthRoute(request)) {
+                log.debug("Route d'authentification, aucune vérification de token nécessaire");
                 return chain.filter(exchange);
             }
 
             // Récupérer le token du header Authorization
             List<String> authHeader = request.getHeaders().get("Authorization");
-            if (authHeader == null || authHeader.isEmpty() || !authHeader.get(0).startsWith("Bearer ")) {
-                log.error("Header d'autorisation manquant ou invalide");
-                return onError(exchange, "Header d'autorisation manquant ou invalide", HttpStatus.UNAUTHORIZED);
+            if (authHeader == null || authHeader.isEmpty()) {
+                log.warn("Header d'autorisation manquant pour: {}", path);
+                return onError(exchange, "Header d'autorisation manquant", HttpStatus.UNAUTHORIZED);
+            }
+            
+            String authHeaderValue = authHeader.get(0);
+            if (!authHeaderValue.startsWith("Bearer ")) {
+                log.warn("Format du header d'autorisation invalide: {}", authHeaderValue);
+                return onError(exchange, "Format du header d'autorisation invalide", HttpStatus.UNAUTHORIZED);
             }
 
-            String token = authHeader.get(0).substring(7);
+            String token = authHeaderValue.substring(7);
+            log.debug("Token trouvé pour: {}", path);
+            
             try {
                 // Valider le token
                 Claims claims = Jwts.parserBuilder()
@@ -61,15 +77,31 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
                     .parseClaimsJws(token)
                     .getBody();
                 
+                String userEmail = claims.getSubject();
+                String userRole = claims.get("role", String.class);
+                log.debug("Token valide pour l'utilisateur: {}, rôle: {}", userEmail, userRole);
+                
                 // Ajouter les infos utilisateur aux headers pour les services en aval
                 ServerHttpRequest modifiedRequest = request.mutate()
-                    .header("X-User-Email", claims.getSubject())
-                    .header("X-User-Role", claims.get("role", String.class))
+                    .header("X-User-Email", userEmail)
+                    .header("X-User-Role", userRole)
                     .build();
                 
                 return chain.filter(exchange.mutate().request(modifiedRequest).build());
+            } catch (ExpiredJwtException e) {
+                log.error("Token JWT expiré: {}", e.getMessage());
+                return onError(exchange, "Token JWT expiré", HttpStatus.UNAUTHORIZED);
+            } catch (UnsupportedJwtException e) {
+                log.error("Token JWT non supporté: {}", e.getMessage());
+                return onError(exchange, "Token JWT non supporté", HttpStatus.UNAUTHORIZED);
+            } catch (MalformedJwtException e) {
+                log.error("Token JWT mal formé: {}", e.getMessage());
+                return onError(exchange, "Token JWT mal formé", HttpStatus.UNAUTHORIZED);
+            } catch (SignatureException e) {
+                log.error("Signature du token JWT invalide: {}", e.getMessage());
+                return onError(exchange, "Signature du token JWT invalide", HttpStatus.UNAUTHORIZED);
             } catch (Exception e) {
-                log.error("Token JWT invalide: {}", e.getMessage());
+                log.error("Erreur lors de la validation du token JWT: {}", e.getMessage());
                 return onError(exchange, "Token JWT invalide", HttpStatus.UNAUTHORIZED);
             }
         };
@@ -77,12 +109,15 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
     
     private boolean isAuthRoute(ServerHttpRequest request) {
         String path = request.getURI().getPath();
-        return path.startsWith("/api/auth/");
+        boolean isAuthPath = path.startsWith("/api/auth/");
+        log.debug("Vérification si route auth: {} -> {}", path, isAuthPath);
+        return isAuthPath;
     }
     
     private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus status) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(status);
+        log.debug("Réponse d'erreur envoyée: {} - {}", status, message);
         return response.setComplete();
     }
 } 

@@ -11,6 +11,69 @@
 			"item": [
 				{
 					"name": "register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"if (response && response.token) {",
+									"    pm.environment.set(\"token\", response.token);",
+									"    console.log(\"Token saved: \" + response.token.substring(0, 20) + '...');",
+									"    ",
+									"    // Si l'ID de l'utilisateur est disponible, le stocker",
+									"    if (response.id) {",
+									"        pm.environment.set(\"userId\", response.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"email2\",\n    \"password\": \"password2\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://{{gateway_url}}/api/auth/register"
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"if (response && response.token) {",
+									"    pm.environment.set(\"token\", response.token);",
+									"    console.log(\"Token saved: \" + response.token.substring(0, 20) + '...');",
+									"    ",
+									"    // Si l'ID de l'utilisateur est disponible, le stocker",
+									"    if (response.id) {",
+									"        pm.environment.set(\"userId\", response.id);",
+									"    } else {",
+									"        // Sinon, définir une valeur par défaut pour tester",
+									"        pm.environment.set(\"userId\", \"1\");",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -23,40 +86,106 @@
 								}
 							}
 						},
-						"url": "http://{{auth_url}}/api/auth/register"
+						"url": "http://{{gateway_url}}/api/auth/login"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "Get All Users (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://{{gateway_url}}/api/users"
 					},
 					"response": []
 				},
 				{
-					"name": "login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const token =pm.response.json().token;",
-									"console.log(token)",
-									"pm.environment.set(\"token\",token)",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
+					"name": "Get User by ID",
 					"request": {
-						"method": "POST",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://{{gateway_url}}/api/users/{{userId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\":\"email3\",\n    \"password\": \"password3\"\n}",
+							"raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"Name\",\n    \"email\": \"updated.email@example.com\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://{{auth_url}}/api/auth/auth/login"
+						"url": "http://{{gateway_url}}/api/users/{{userId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Role",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": \"ADMIN\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://{{gateway_url}}/api/users/{{userId}}/role"
 					},
 					"response": []
 				}
@@ -70,7 +199,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://{{auth_url}}/api/event/civilizations/civilizations"
+						"url": "http://{{gateway_url}}/api/event/civilizations/civilizations"
 					},
 					"response": []
 				}
@@ -106,8 +235,18 @@
 			"type": "string"
 		},
 		{
+			"key": "gateway_url",
+			"value": "localhost:8080",
+			"type": "string"
+		},
+		{
 			"key": "token",
 			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1",
 			"type": "string"
 		}
 	]

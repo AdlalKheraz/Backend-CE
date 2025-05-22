@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,8 +19,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.chrono.auth.security.JWTAuthenticationFilter;
 import com.chrono.auth.security.UserDetailsServiceImpl;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@Slf4j
 public class SecurityConfig {
 
     @Autowired
@@ -30,13 +35,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        log.info("Configuration de la sécurité HTTP");
+        
         return http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .anyRequest().authenticated()
-            )
+            .authorizeHttpRequests(auth -> {
+                auth.requestMatchers("/auth/**").permitAll();
+                // Les URL pour la modification du rôle nécessitent ADMIN
+                auth.requestMatchers("/users/*/role").hasRole("ADMIN"); 
+                // Les autres URL pour les utilisateurs nécessitent juste d'être authentifié
+                // Les vérifications plus précises sont faites dans le contrôleur
+                auth.requestMatchers("/users/**").authenticated();
+                auth.anyRequest().authenticated();
+                
+                log.info("Règles d'autorisation configurées");
+            })
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .build();

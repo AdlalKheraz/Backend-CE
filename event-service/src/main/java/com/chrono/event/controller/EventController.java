@@ -14,8 +14,6 @@ import com.chrono.event.dto.EventDTO;
 import com.chrono.event.entity.Event;
 import com.chrono.event.service.EventService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("/events")
 public class EventController {
