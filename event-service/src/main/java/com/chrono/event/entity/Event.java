@@ -1,6 +1,7 @@
 package com.chrono.event.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +30,7 @@ public class Event {
 
     private String title;
     private String description;
+    private String fullDescription;
     
     private LocalDate date;
 
@@ -35,4 +39,24 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     private EventType type;
+    
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String source;
+    private boolean verified;
+    
+    private String userId;
+    private String userRole;
+    private String userEmail;
+    
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
