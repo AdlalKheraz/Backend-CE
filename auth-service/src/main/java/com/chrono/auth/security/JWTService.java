@@ -28,10 +28,11 @@ public class JWTService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", user.getEmail());
         claims.put("role", user.getRole().name());
+        claims.put("userId", user.getId());
         
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(user.getEmail())
+                .setSubject(user.getId().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
@@ -39,7 +40,8 @@ public class JWTService {
     }
 
     public String extractEmail(String token) {
-        return extractAllClaims(token).getSubject();
+        Claims claims = extractAllClaims(token);
+        return (String) claims.get("email");
     }
     
     public Claims extractAllClaims(String token) {
