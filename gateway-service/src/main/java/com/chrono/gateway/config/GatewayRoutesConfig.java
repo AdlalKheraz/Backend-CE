@@ -40,6 +40,11 @@ public class GatewayRoutesConfig {
                 .filters(f -> f.stripPrefix(2)
                               .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
                 .uri("http://localhost:8082"))
+            // Route publique pour les événements publics (sans authentification JWT)
+            .route("event-service-public", r -> r.path("/api/events/public/**")
+                .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}"))
+                .uri("http://localhost:8083"))
+            // Route protégée pour les autres endpoints du service d'événements
             .route("event-service", r -> r.path("/api/events/**", "/api/civilizations/**", "/api/comments/**")
                 .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}")
                               .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
