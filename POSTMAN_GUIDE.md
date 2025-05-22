@@ -1,276 +1,323 @@
-# Guide de test API avec Postman
+# Chrono Explorer API Testing Guide
 
-Ce guide vous aide à tester l'ensemble de l'API Chrono Explorer à l'aide de Postman, en expliquant l'ordre des requêtes et comment les configurer correctement.
+This guide helps you test the entire Chrono Explorer API using Postman, explaining the request order and how to properly configure them.
 
-## Collection Postman
+## Postman Collection
 
-Vous pouvez importer la collection complète depuis le fichier `Chrono-Explorer.postman_collection.json` inclus dans ce dépôt.
+You can import the complete collection from the `Chrono-Explorer.postman_collection.json` file included in this repository.
 
-## Prérequis
+## Prerequisites
 
-1. Assurez-vous que tous les services sont en cours d'exécution :
+1. Make sure all services are running:
    - Gateway Service (port 8080)
    - Auth Service (port 8081)
    - Media Service (port 8082)
    - Event Service (port 8083)
-   - Bases de données MySQL (via Docker)
+   - MySQL databases (via Docker)
+   - MinIO (ports 9000 for API, 9001 for console)
 
-2. Paramètres globaux à configurer dans Postman :
-   - `gateway_url`: http://localhost:8080
-   - `enable_cookies`: true (dans les paramètres de la collection)
+2. Global parameters to configure in Postman:
+   - `baseUrl`: http://localhost:8080
+   - `enable_cookies`: true (in collection settings)
 
-## Ordre des requêtes
+## Request Execution Order
 
-⚠️ **IMPORTANT**: Les requêtes doivent être exécutées dans l'ordre indiqué car elles dépendent les unes des autres, notamment pour l'authentification.
+⚠️ **IMPORTANT**: Requests must be executed in the order indicated as they depend on each other, especially for authentication.
 
-### 1. Authentification
+### 1. Authentication Service
 
 ```mermaid
 flowchart LR
-    A[1. Register] --> B[2. Login]
-    B --> C[3. Check Auth]
+    A[Register New User] --> B[Authenticate User]
+    B --> C[Get User Profile]
 ```
 
-#### 1.1. Enregistrement d'un utilisateur
+#### 1.1. Register New User
 
 ```
-POST {{gateway_url}}/api/auth/register
+POST {{baseUrl}}/api/auth/register
 ```
 
-**Body** (form-data ou x-www-form-urlencoded) :
-- `email`: votre_email@example.com
-- `password`: votre_mot_de_passe
-
-**Résultat attendu**: Status 200 OK
-
-#### 1.2. Connexion
-
-```
-POST {{gateway_url}}/api/auth/login
+**Body** (JSON):
+```json
+{
+  "email": "your_email@example.com",
+  "password": "your_password",
+  "firstName": "John",
+  "lastName": "Doe"
+}
 ```
 
-**Body** (form-data ou x-www-form-urlencoded) :
-- `email`: votre_email@example.com
-- `password`: votre_mot_de_passe
+**Expected result**: Status 200 OK
 
-**Résultat attendu**: 
+#### 1.2. Authenticate User
+
+```
+POST {{baseUrl}}/api/auth/login
+```
+
+**Body** (JSON):
+```json
+{
+  "email": "your_email@example.com",
+  "password": "your_password"
+}
+```
+
+**Expected result**: 
 - Status 200 OK
-- Response body: `true`
-- Cookie `jwt` défini automatiquement (vérifie dans l'onglet "Cookies")
+- Response body contains JWT token
+- JWT token is automatically saved to the `token` variable
 
-> 📌 **Note importante**: Postman conservera automatiquement le cookie JWT pour toutes les requêtes suivantes si vous avez activé la gestion des cookies pour cette collection.
+> 📌 **Important note**: The JWT token will be automatically used for all subsequent requests.
 
-#### 1.3. Vérification de l'authentification
+#### 1.3. Get User Profile
 
 ```
-GET {{gateway_url}}/api/auth/check
+GET {{baseUrl}}/api/users/{{userId}}
 ```
 
-**Résultat attendu**: 
+**Expected result**: 
 - Status 200 OK
-- Détails de l'utilisateur en JSON
+- User details in JSON format
 
-### 2. Gestion des civilisations
+### 2. Civilization Service
 
-#### 2.1. Création d'une civilisation
+#### 2.1. Create Civilization
 
 ```
-POST {{gateway_url}}/api/event/civilizations
+POST {{baseUrl}}/api/civilizations
 ```
 
 **Headers**:
 - Content-Type: application/json
 
-**Body** (raw JSON):
+**Body** (JSON):
 ```json
 {
-  "name": "Empire Romain",
-  "description": "L'Empire romain est le nom donné au régime politique et au territoire ayant succédé à la République romaine.",
-  "startDate": "-0027-01-16",
+  "name": "Roman Empire",
+  "description": "The Roman Empire was one of the largest empires in world history.",
+  "startDate": "0027-01-16",
   "endDate": "0476-09-04"
 }
 ```
 
-**Résultat attendu**: 
+**Expected result**: 
 - Status 201 Created
-- ID de la civilisation dans la réponse (à conserver pour les étapes suivantes)
+- Civilization ID in the response (keep this for later steps)
 
-#### 2.2. Récupération des civilisations
+#### 2.2. Get All Civilizations
 
 ```
-GET {{gateway_url}}/api/event/civilizations
+GET {{baseUrl}}/api/civilizations
 ```
 
-**Résultat attendu**:
+**Expected result**:
 - Status 200 OK
-- Liste des civilisations en JSON
+- List of civilizations in JSON format
 
-### 3. Gestion des événements
+### 3. Event Service
 
-#### 3.1. Création d'un événement
+#### 3.1. Create Historical Event
 
 ```
-POST {{gateway_url}}/api/event/events
+POST {{baseUrl}}/api/events
 ```
 
 **Headers**:
 - Content-Type: application/json
 
-**Body** (raw JSON):
+**Body** (JSON):
 ```json
 {
-  "title": "Fondation de Rome",
-  "date": "-0753-04-21",
-  "description": "Selon la légende, Rome est fondée par Romulus et Remus sur les rives du Tibre.",
-  "civilizationId": 1
+  "title": "Founding of Rome",
+  "date": "0753-04-21",
+  "description": "According to legend, Rome was founded by Romulus and Remus on the banks of the Tiber.",
+  "civilizationId": {{civilizationId}}
 }
 ```
-> ⚠️ Remplacez `civilizationId` par l'ID obtenu à l'étape 2.1
+> ⚠️ Replace `civilizationId` with the ID obtained in step 2.1
 
-**Résultat attendu**: 
+**Expected result**: 
 - Status 201 Created
-- ID de l'événement dans la réponse (à conserver pour les étapes suivantes)
+- Event ID in the response (keep this for later steps)
 
-#### 3.2. Récupération des événements
+#### 3.2. Get All Historical Events
 
 ```
-GET {{gateway_url}}/api/event/events
+GET {{baseUrl}}/api/events
 ```
 
-**Résultat attendu**:
+**Expected result**:
 - Status 200 OK
-- Liste des événements en JSON
+- List of events in JSON format
 
-#### 3.3. Récupération des événements d'une civilisation
+#### 3.3. Get Events By Civilization
 
 ```
-GET {{gateway_url}}/api/event/civilizations/1/events
+GET {{baseUrl}}/api/events/civilization/{{civilizationId}}
 ```
-> ⚠️ Remplacez `1` par l'ID obtenu à l'étape 2.1
+> ⚠️ Replace `civilizationId` with the ID obtained in step 2.1
 
-**Résultat attendu**:
+**Expected result**:
 - Status 200 OK
-- Liste des événements de la civilisation en JSON
+- List of events for the civilization in JSON format
 
-### 4. Gestion des médias
+### 4. Media Service
 
-#### 4.1. Ajout d'un média
+#### 4.1. Add Media by URL
 
 ```
-POST {{gateway_url}}/api/media
+POST {{baseUrl}}/api/media
 ```
 
 **Headers**:
 - Content-Type: application/json
 
-**Body** (raw JSON):
+**Body** (JSON):
 ```json
 {
   "url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Ara_pacis_roma.JPG",
   "type": "IMAGE",
-  "eventId": 1
+  "eventId": {{eventId}}
 }
 ```
-> ⚠️ Remplacez `eventId` par l'ID obtenu à l'étape 3.1
+> ⚠️ Replace `eventId` with the ID obtained in step 3.1
 
-**Résultat attendu**:
+**Expected result**:
 - Status 201 Created
-- Détails du média créé en JSON
+- Created media details in JSON format
 
-#### 4.2. Récupération des médias d'un événement
+#### 4.2. Upload Media File
 
 ```
-GET {{gateway_url}}/api/media/event/1
+POST {{baseUrl}}/api/media/upload
 ```
-> ⚠️ Remplacez `1` par l'ID obtenu à l'étape 3.1
 
-**Résultat attendu**:
+**Body** (form-data):
+- `file`: Select an image or video file from your computer
+- `type`: IMAGE (or VIDEO depending on file type)
+- `eventId`: {{eventId}} (replace with the ID obtained in step 3.1)
+
+> ⚠️ Do not set a Content-Type header, Postman will do this automatically
+
+**Expected result**:
+- Status 201 Created
+- Created media details in JSON format with the generated URL pointing to MinIO
+
+#### 4.3. Get Media For Event
+
+```
+GET {{baseUrl}}/api/media/event/{{eventId}}
+```
+> ⚠️ Replace `eventId` with the ID obtained in step 3.1
+
+**Expected result**:
 - Status 200 OK
-- Liste des médias de l'événement en JSON
+- List of media for the event in JSON format
 
-### 5. Gestion des commentaires
-
-#### 5.1. Ajout d'un commentaire
+#### 4.4. Access Media File
 
 ```
-POST {{gateway_url}}/api/event/comments
+GET {{baseUrl}}/api/media/files/{{filename}}
+```
+> ⚠️ Replace `filename` with the filename from the URL returned in step 4.2
+
+**Expected result**:
+- Status 200 OK
+- The image or video file is displayed or downloaded
+
+### 5. Comment Service
+
+#### 5.1. Add Comment to Event
+
+```
+POST {{baseUrl}}/api/comments
 ```
 
 **Headers**:
 - Content-Type: application/json
 
-**Body** (raw JSON):
+**Body** (JSON):
 ```json
 {
-  "content": "Quelle époque fascinante !",
-  "eventId": 1
+  "content": "What a fascinating era!",
+  "eventId": {{eventId}}
 }
 ```
-> ⚠️ Remplacez `eventId` par l'ID obtenu à l'étape 3.1
+> ⚠️ Replace `eventId` with the ID obtained in step 3.1
 
-**Résultat attendu**:
+**Expected result**:
 - Status 201 Created
-- Détails du commentaire créé en JSON
+- Created comment details in JSON format
 
-#### 5.2. Récupération des commentaires d'un événement
+#### 5.2. Get Comments For Event
 
 ```
-GET {{gateway_url}}/api/event/events/1/comments
+GET {{baseUrl}}/api/comments/event/{{eventId}}
 ```
-> ⚠️ Remplacez `1` par l'ID obtenu à l'étape 3.1
+> ⚠️ Replace `eventId` with the ID obtained in step 3.1
 
-**Résultat attendu**:
+**Expected result**:
 - Status 200 OK
-- Liste des commentaires de l'événement en JSON
+- List of comments for the event in JSON format
 
-### 6. Déconnexion
+### 6. Security Testing
 
-```
-POST {{gateway_url}}/api/auth/logout
-```
+Various tests for security validation:
 
-**Résultat attendu**:
-- Status 200 OK
-- Cookie JWT supprimé
+- **Access Events Without Authentication**: Should return 401 Unauthorized
+- **Access Media Without Authentication**: Should return 401 Unauthorized
+- **Create Civilization With Invalid Token**: Should return 401 Unauthorized
 
-## Résolution des problèmes courants
+## Common Issues Troubleshooting
 
-### Erreur 401 Unauthorized
-- Vérifiez que vous êtes bien connecté (étape 1.2)
-- Vérifiez que les cookies sont activés dans la collection Postman
-- Réexécutez la requête de connexion pour obtenir un nouveau token
+### 401 Unauthorized Error
+- Check that you're properly logged in (step 1.2)
+- Verify that cookies are enabled in the Postman collection
+- Re-execute the login request to get a new token
 
-### Erreur 404 Not Found
-- Vérifiez que tous les services sont démarrés
-- Vérifiez que vous utilisez les bonnes URLs
-- Vérifiez que la Gateway est correctement configurée
+### 404 Not Found Error
+- Check that all services are running
+- Verify you're using the correct URLs
+- Check that the Gateway is properly configured
 
-### Erreur 500 Internal Server Error
-- Vérifiez les logs du service concerné
-- Vérifiez que les bases de données sont accessibles
+### 500 Internal Server Error
+- Check the logs of the concerned service
+- Verify that databases are accessible
 
-## Collection Postman complète
+## Complete Postman Collection
 
-Voici la structure complète de la collection Postman fournie :
+Here's the complete structure of the provided Postman collection:
 
 ```
 Chrono Explorer API
-├── 1. Authentification
-│   ├── Register
-│   ├── Login
-│   ├── Check Auth
-│   └── Logout
-├── 2. Civilisations
-│   ├── Créer une civilisation
-│   └── Liste des civilisations
-├── 3. Événements
-│   ├── Créer un événement
-│   ├── Liste des événements
-│   └── Événements par civilisation
-├── 4. Médias
-│   ├── Ajouter un média
-│   └── Médias par événement
-└── 5. Commentaires
-    ├── Ajouter un commentaire
-    └── Commentaires par événement
+├── Authentication Service
+│   ├── Register New User
+│   ├── Authenticate User
+│   ├── Get User Profile
+│   ├── Update User Profile
+│   ├── Change User Role
+│   └── Get All Users
+├── Civilization Service
+│   ├── Create Civilization
+│   ├── Create Civilization (Direct to Service)
+│   ├── Get All Civilizations
+│   └── Update Civilization
+├── Event Service
+│   ├── Create Historical Event
+│   ├── Get All Historical Events
+│   └── Get Events By Civilization
+├── Comment Service
+│   ├── Add Comment to Event
+│   └── Get Comments For Event
+├── Media Service
+│   ├── Add Media by URL
+│   ├── Upload Media File
+│   ├── Get Media For Event
+│   └── Access Media File
+└── Security Testing
+    ├── Access Events Without Authentication
+    ├── Access Media Without Authentication
+    └── Create Civilization With Invalid Token
 ``` 

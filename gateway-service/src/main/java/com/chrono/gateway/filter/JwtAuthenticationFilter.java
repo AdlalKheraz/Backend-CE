@@ -47,9 +47,9 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
             
             log.debug("JWT Filter - Traitement de la requête: {}", path);
             
-            // Skip pour les routes d'auth
-            if (isAuthRoute(request)) {
-                log.debug("Route d'authentification, aucune vérification de token nécessaire");
+            // Skip pour les routes d'auth et les routes publiques
+            if (isPublicRoute(request)) {
+                log.debug("Route publique, aucune vérification de token nécessaire");
                 return chain.filter(exchange);
             }
 
@@ -107,11 +107,21 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         };
     }
     
-    private boolean isAuthRoute(ServerHttpRequest request) {
+    private boolean isPublicRoute(ServerHttpRequest request) {
         String path = request.getURI().getPath();
+        String method = request.getMethod().name();
+        
+        // Routes d'authentification
         boolean isAuthPath = path.startsWith("/api/auth/");
-        log.debug("Vérification si route auth: {} -> {}", path, isAuthPath);
-        return isAuthPath;
+        
+        // Routes GET publiques (Comments et Civilizations)
+        boolean isPublicGetPath = "GET".equals(method) && 
+                                  (path.startsWith("/api/comments") || 
+                                   path.startsWith("/api/civilizations"));
+        
+        boolean isPublic = isAuthPath || isPublicGetPath;
+        log.debug("Vérification si route publique: {} ({}) -> {}", path, method, isPublic);
+        return isPublic;
     }
     
     private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus status) {
