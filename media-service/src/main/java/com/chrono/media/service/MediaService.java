@@ -13,4 +13,7 @@ public interface MediaService {
     MediaResponse uploadMedia(MultipartFile file, MediaUploadRequest request);
     List<MediaResponse> getMediaByEvent(Long eventId);
     List<MediaResponse> getUploadedMediaByEvent(Long eventId);
+    List<MediaResponse> getAllMedia();
+    MediaResponse getMediaById(Long id);
+    void deleteMedia(Long id);
 }

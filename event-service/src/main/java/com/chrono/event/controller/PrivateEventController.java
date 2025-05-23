@@ -17,8 +17,11 @@ import com.chrono.event.dto.EventFilterDTO;
 import com.chrono.event.dto.PrivateEventDTO;
 import com.chrono.event.service.PrivateEventService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/events")
+@Slf4j
 public class PrivateEventController {
 
     @Autowired
@@ -26,6 +29,7 @@ public class PrivateEventController {
 
     @PostMapping
     public PrivateEventDTO create(@RequestBody PrivateEventDTO dto) {
+        log.info("Création d'un nouvel événement");
         return eventService.createEvent(dto);
     }
 
@@ -34,19 +38,22 @@ public class PrivateEventController {
      */
     @PostMapping("/search")
     public Page<PrivateEventDTO> searchEvents(@RequestBody EventFilterDTO filter) {
+        log.info("Recherche d'événements avec filtres: {}", filter);
         return eventService.getAllPrivateEvents(filter);
     }
 
     /**
-     * Méthode de compatibilité pour récupérer tous les événements sans filtrage
+     * Méthode pour récupérer tous les événements sans filtrage
      */
     @GetMapping
     public List<PrivateEventDTO> getAllPrivateEvents() {
+        log.info("Récupération de tous les événements");
         return eventService.getAllPrivateEvents();
     }
 
     @GetMapping("/{id}")
     public PrivateEventDTO getPrivateEventById(@PathVariable Long id) {
+        log.info("Récupération de l'événement avec l'ID: {}", id);
         return eventService.getPrivateEventById(id);
     }
 
@@ -57,29 +64,34 @@ public class PrivateEventController {
     public Page<PrivateEventDTO> searchEventsByCivilization(
             @PathVariable Long id, 
             @RequestBody EventFilterDTO filter) {
+        log.info("Recherche d'événements pour la civilisation {} avec filtres: {}", id, filter);
         return eventService.getPrivateEventsByCivilization(id, filter);
     }
 
     /**
-     * Méthode de compatibilité pour récupérer les événements d'une civilisation sans filtrage
+     * Méthode pour récupérer les événements d'une civilisation sans filtrage
      */
     @GetMapping("/civilization/{id}")
     public List<PrivateEventDTO> getPrivateEventsByCivilization(@PathVariable Long id) {
+        log.info("Récupération des événements pour la civilisation: {}", id);
         return eventService.getPrivateEventsByCivilization(id);
     }
     
     @PutMapping("/{id}")
     public PrivateEventDTO updateEvent(@PathVariable Long id, @RequestBody PrivateEventDTO dto) {
+        log.info("Mise à jour de l'événement avec l'ID: {}", id);
         return eventService.updateEvent(id, dto);
     }
     
     @DeleteMapping("/{id}")
     public void deleteEvent(@PathVariable Long id) {
+        log.info("Suppression de l'événement avec l'ID: {}", id);
         eventService.deleteEvent(id);
     }
     
     @PutMapping("/{id}/verify")
     public PrivateEventDTO verifyEvent(@PathVariable Long id) {
+        log.info("Vérification de l'événement avec l'ID: {}", id);
         return eventService.verifyEvent(id);
     }
 }

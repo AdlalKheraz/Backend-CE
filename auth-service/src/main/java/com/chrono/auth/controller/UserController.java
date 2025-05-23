@@ -7,24 +7,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chrono.auth.dto.UpdateRoleRequest;
-import com.chrono.auth.dto.UpdateUserRequest;
+import com.chrono.auth.dto.ChangeRoleRequest;
+import com.chrono.auth.dto.UserProfileUpdateRequest;
+import com.chrono.auth.dto.UserResponse;
 import com.chrono.auth.entity.User;
+import com.chrono.auth.exception.EmailAlreadyExistsException;
+import com.chrono.auth.exception.InvalidPasswordException;
+import com.chrono.auth.exception.UserNotFoundException;
 import com.chrono.auth.repository.UserRepository;
 import com.chrono.auth.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Contrôleur pour les opérations génériques sur les utilisateurs
+ */
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@Validated
 public class UserController {
 
     @Autowired
@@ -35,21 +48,22 @@ public class UserController {
     
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.debug("GET /users - Utilisateur: {}, Rôles: {}", auth.getName(), auth.getAuthorities());
-        return ResponseEntity.ok(userService.getAllUsers());
+        List<UserResponse> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.debug("GET /users/{} - Utilisateur: {}, Rôles: {}", id, auth.getName(), auth.getAuthorities());
         
         try {
             // Vérifier si l'utilisateur est admin ou s'il accède à son propre profil
             if (hasAdminRole(auth) || isUserAccessingOwnProfile(auth, id)) {
-                User user = userService.getUserById(id);
+                UserResponse user = userService.getUserById(id);
                 return ResponseEntity.ok(user);
             } else {
                 log.warn("Accès non autorisé - User {} tente d'accéder au profil {}", auth.getName(), id);
@@ -62,28 +76,60 @@ public class UserController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody User userUpdate) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.debug("PUT /users/{} - Utilisateur: {}, Rôles: {}", id, auth.getName(), auth.getAuthorities());
         
-        // Vérifier si l'utilisateur est admin ou s'il accède à son propre profil
-        if (hasAdminRole(auth) || isUserAccessingOwnProfile(auth, id)) {
-            User updatedUser = userService.updateUser(id, request);
+        UserResponse updatedUser = userService.updateUser(id, userUpdate);
+        return ResponseEntity.ok(updatedUser);
+    }
+    
+    @PostMapping("/profile")
+    public ResponseEntity<UserResponse> updateOwnProfile(@Valid @RequestBody UserProfileUpdateRequest profileUpdate) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = auth.getName();
+        log.info("POST /users/profile - Mise à jour du profil pour l'utilisateur: {}", currentUserEmail);
+        
+        try {
+            User currentUser = userRepository.findByEmail(currentUserEmail)
+                    .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'email: " + currentUserEmail));
+            
+            UserResponse updatedUser = userService.updateUserProfile(currentUser.getId(), profileUpdate);
             return ResponseEntity.ok(updatedUser);
-        } else {
-            log.warn("Accès non autorisé - User {} tente de modifier le profil {}", auth.getName(), id);
-            throw new RuntimeException("Accès non autorisé à ce profil utilisateur");
+        } catch (UserNotFoundException | EmailAlreadyExistsException | InvalidPasswordException e) {
+            log.error("Erreur spécifique: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Erreur inattendue lors de la mise à jour du profil pour l'utilisateur {}: {}", 
+                    currentUserEmail, e.getMessage(), e);
+            throw new RuntimeException("Une erreur est survenue lors de la mise à jour du profil: " + e.getMessage());
         }
     }
     
-    @PutMapping("/{id}/role")
+    @PatchMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> updateUserRole(@PathVariable Long id, @RequestBody UpdateRoleRequest request) {
+    public ResponseEntity<UserResponse> changeUserRole(@PathVariable Long id, @RequestBody ChangeRoleRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.debug("PUT /users/{}/role - Utilisateur: {}, Rôles: {}", id, auth.getName(), auth.getAuthorities());
+        log.debug("PATCH /users/{}/role - Utilisateur: {}, Rôles: {}", id, auth.getName(), auth.getAuthorities());
         
-        User updatedUser = userService.updateUserRole(id, request);
+        UserResponse updatedUser = userService.changeUserRole(id, request);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        log.debug("DELETE /users/{} - Utilisateur: {}, Rôles: {}", id, auth.getName(), auth.getAuthorities());
+        
+        // Vérifier si l'utilisateur est admin ou s'il supprime son propre compte
+        if (hasAdminRole(auth) || isUserAccessingOwnProfile(auth, id)) {
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            log.warn("Accès non autorisé - User {} tente de supprimer le compte {}", auth.getName(), id);
+            throw new RuntimeException("Vous n'êtes pas autorisé à supprimer ce compte utilisateur");
+        }
     }
     
     /**
@@ -108,20 +154,5 @@ public class UserController {
         log.debug("Vérification profil utilisateur - ID demandé: {}, ID utilisateur: {}, Accès au propre profil: {}", 
                 userId, currentUser.getId(), isOwnProfile);
         return isOwnProfile;
-    }
-    
-    /**
-     * Méthode existante pour la rétrocompatibilité, utilise les nouvelles méthodes helpers
-     */
-    private void checkUserAuthorization(Long userId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.debug("Vérification d'autorisation - User ID demandé: {}, Utilisateur authentifié: {}", userId, auth.getName());
-        
-        if (!hasAdminRole(auth) && !isUserAccessingOwnProfile(auth, userId)) {
-            log.warn("Accès non autorisé - User {} tente d'accéder au profil {}", auth.getName(), userId);
-            throw new RuntimeException("Accès non autorisé à ce profil utilisateur");
-        }
-        
-        log.debug("Accès autorisé");
     }
 } 

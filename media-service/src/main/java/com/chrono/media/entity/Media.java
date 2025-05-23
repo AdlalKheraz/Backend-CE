@@ -30,6 +30,12 @@ public class Media {
     @Column(nullable = false)
     private String url;
 
+    @Column
+    private String title;
+
+    @Column(length = 1000)
+    private String description;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MediaType type;

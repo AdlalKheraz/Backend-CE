@@ -17,6 +17,10 @@ public class MediaRequest {
     @NotBlank
     private String url;
     
+    private String title;
+    
+    private String description;
+    
     @NotNull
     private MediaType type;
     

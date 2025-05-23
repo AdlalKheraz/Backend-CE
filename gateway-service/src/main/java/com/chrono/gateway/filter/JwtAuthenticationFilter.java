@@ -114,10 +114,12 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         // Routes d'authentification
         boolean isAuthPath = path.startsWith("/api/auth/");
         
-        // Routes GET publiques (Comments et Civilizations)
+        // Routes GET publiques
         boolean isPublicGetPath = "GET".equals(method) && 
                                   (path.startsWith("/api/comments") || 
-                                   path.startsWith("/api/civilizations"));
+                                   path.startsWith("/api/civilizations") ||
+                                   path.startsWith("/api/events") ||
+                                   path.startsWith("/api/media"));
         
         boolean isPublic = isAuthPath || isPublicGetPath;
         log.debug("Vérification si route publique: {} ({}) -> {}", path, method, isPublic);

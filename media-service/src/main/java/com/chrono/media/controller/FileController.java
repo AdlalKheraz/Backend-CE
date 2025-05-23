@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/media/files")
 @RequiredArgsConstructor
 public class FileController {
 
@@ -29,6 +29,8 @@ public class FileController {
 
     @GetMapping("/{filename:.+}")
     public ResponseEntity<InputStreamResource> getFile(@PathVariable String filename) {
+        log.info("Demande d'accès au fichier: {}", filename);
+        
         try {
             // Récupérer l'objet de MinIO
             GetObjectArgs args = GetObjectArgs.builder()
@@ -39,26 +41,15 @@ public class FileController {
             InputStream stream = minioClient.getObject(args);
             
             // Déterminer le type de média
-            String contentType = "application/octet-stream";
-            if (filename.toLowerCase().endsWith(".jpg") || filename.toLowerCase().endsWith(".jpeg")) {
-                contentType = "image/jpeg";
-            } else if (filename.toLowerCase().endsWith(".png")) {
-                contentType = "image/png";
-            } else if (filename.toLowerCase().endsWith(".gif")) {
-                contentType = "image/gif";
-            } else if (filename.toLowerCase().endsWith(".mp4")) {
-                contentType = "video/mp4";
-            } else if (filename.toLowerCase().endsWith(".webm")) {
-                contentType = "video/webm";
-            } else if (filename.toLowerCase().endsWith(".avi")) {
-                contentType = "video/x-msvideo";
-            }
+            String contentType = determineContentType(filename);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType(contentType));
             
             // Configurer le cache pour les navigateurs
             headers.setCacheControl("max-age=31536000");
+            
+            log.info("Fichier {} récupéré avec succès, type: {}", filename, contentType);
             
             return ResponseEntity.ok()
                     .headers(headers)
@@ -68,5 +59,32 @@ public class FileController {
             log.error("Erreur lors de la récupération du fichier: {}", filename, e);
             return ResponseEntity.notFound().build();
         }
+    }
+    
+    /**
+     * Détermine le type MIME en fonction de l'extension du fichier
+     */
+    private String determineContentType(String filename) {
+        if (filename == null) {
+            return "application/octet-stream";
+        }
+        
+        String lowerFilename = filename.toLowerCase();
+        
+        if (lowerFilename.endsWith(".jpg") || lowerFilename.endsWith(".jpeg")) {
+            return "image/jpeg";
+        } else if (lowerFilename.endsWith(".png")) {
+            return "image/png";
+        } else if (lowerFilename.endsWith(".gif")) {
+            return "image/gif";
+        } else if (lowerFilename.endsWith(".mp4")) {
+            return "video/mp4";
+        } else if (lowerFilename.endsWith(".webm")) {
+            return "video/webm";
+        } else if (lowerFilename.endsWith(".avi")) {
+            return "video/x-msvideo";
+        }
+        
+        return "application/octet-stream";
     }
 } 

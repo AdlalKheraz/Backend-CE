@@ -1,18 +1,17 @@
 package com.chrono.media.service.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.chrono.media.config.StorageConfig;
+import com.chrono.media.exception.StorageException;
 import com.chrono.media.service.StorageService;
 
 import jakarta.annotation.PostConstruct;
@@ -36,42 +35,40 @@ public class FileSystemStorageService implements StorageService {
             Files.createDirectories(rootLocation);
             log.info("Dossier de stockage initialisé : {}", rootLocation);
         } catch (IOException e) {
-            throw new RuntimeException("Impossible de créer le dossier de stockage", e);
+            log.error("Impossible de créer le dossier de stockage", e);
+            throw new StorageException("Impossible de créer le dossier de stockage", e);
         }
     }
 
     @Override
     public String store(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new StorageException("Impossible de stocker un fichier vide");
+        }
+
         try {
-            if (file.isEmpty()) {
-                throw new RuntimeException("Impossible de stocker un fichier vide");
-            }
-            
-            // Générer un nom de fichier unique pour éviter les conflits
             String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            if (originalFilename == null) {
+                originalFilename = "unknown";
             }
-            String filename = UUID.randomUUID().toString() + extension;
             
-            // Copier le fichier vers le dossier de stockage
-            Path destinationFile = this.rootLocation.resolve(Paths.get(filename)).normalize().toAbsolutePath();
+            String filename = System.currentTimeMillis() + "_" + originalFilename;
+            Path destinationFile = this.rootLocation.resolve(filename).normalize().toAbsolutePath();
             
-            // Vérifier que le chemin est bien dans le dossier de stockage (sécurité)
             if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
-                throw new RuntimeException("Impossible de stocker le fichier en dehors du dossier de stockage");
+                throw new StorageException("Impossible de stocker le fichier en dehors du dossier de stockage");
             }
             
-            try (InputStream inputStream = file.getInputStream()) {
+            try (var inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-                log.info("Fichier stocké avec succès : {}", filename);
-                
-                // Retourner l'URL relative pour accéder au fichier
-                return "/uploads/" + filename;
             }
+            
+            log.info("Fichier stocké avec succès: {}", filename);
+            return "/api/media/files/" + filename;
+            
         } catch (IOException e) {
-            throw new RuntimeException("Échec du stockage du fichier", e);
+            log.error("Échec du stockage du fichier", e);
+            throw new StorageException("Échec du stockage du fichier", e);
         }
     }
 
@@ -87,17 +84,16 @@ public class FileSystemStorageService implements StorageService {
                 return;
             }
             
-            // Extraire le nom du fichier de l'URL
             String filenameOnly = filename;
-            if (filename.startsWith("/uploads/")) {
-                filenameOnly = filename.substring("/uploads/".length());
+            if (filename.startsWith("/api/media/files/")) {
+                filenameOnly = filename.substring("/api/media/files/".length());
             }
             
             Path file = load(filenameOnly);
             Files.deleteIfExists(file);
-            log.info("Fichier supprimé avec succès : {}", filenameOnly);
+            log.info("Fichier supprimé avec succès: {}", filenameOnly);
         } catch (IOException e) {
-            log.error("Impossible de supprimer le fichier: {}", filename, e);
+            log.error("Erreur lors de la suppression du fichier: {}", filename, e);
         }
     }
 } 
