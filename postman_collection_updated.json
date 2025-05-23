@@ -1,8 +1,8 @@
 {
 	"info": {
 		"_postman_id": "6b2d7d3c-5b43-4eef-b1c5-7f1c32e8c3e9",
-		"name": "Chrono Explorer API - Clean Collection",
-		"description": "Collection nettoyée pour tester tous les endpoints des microservices Chrono Explorer. Organisée par service avec endpoints publics et privés clairement séparés.",
+		"name": "Chrono Explorer API - Collection Complète",
+		"description": "Collection complète avec tous les endpoints incluant la gestion des retours vides et éléments non trouvés. Mise à jour avec les nouvelles fonctionnalités.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12345678"
 	},
@@ -38,6 +38,11 @@
 			"key": "mediaId",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "commentId",
+			"value": "",
+			"type": "string"
 		}
 	],
 	"item": [
@@ -57,7 +62,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events"]
 								},
-								"description": "Récupère tous les événements historiques (public)"
+								"description": "Récupère tous les événements historiques (public) - Retourne [] si aucun événement"
 							}
 						},
 						{
@@ -70,7 +75,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "{{eventId}}"]
 								},
-								"description": "Récupère un événement spécifique par son ID (public)"
+								"description": "Récupère un événement spécifique par son ID (public) - Retourne 404 si non trouvé"
 							}
 						},
 						{
@@ -83,7 +88,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "civilization", "{{civilizationId}}"]
 								},
-								"description": "Récupère tous les événements d'une civilisation (public)"
+								"description": "Récupère tous les événements d'une civilisation (public) - Retourne [] si aucun événement"
 							}
 						}
 					]
@@ -101,7 +106,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations"]
 								},
-								"description": "Récupère toutes les civilisations (public)"
+								"description": "Récupère toutes les civilisations (public) - Retourne [] si aucune civilisation"
 							}
 						},
 						{
@@ -114,7 +119,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations", "{{civilizationId}}"]
 								},
-								"description": "Récupère une civilisation spécifique par son ID (public)"
+								"description": "Récupère une civilisation spécifique par son ID (public) - Retourne 404 si non trouvée"
 							}
 						}
 					]
@@ -132,7 +137,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media"]
 								},
-								"description": "Récupère tous les médias (public) - Nouveau endpoint"
+								"description": "Récupère tous les médias (public) - Retourne [] si aucun média"
 							}
 						},
 						{
@@ -145,7 +150,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media", "event", "{{eventId}}"]
 								},
-								"description": "Récupère tous les médias d'un événement (public)"
+								"description": "Récupère tous les médias d'un événement (public) - Retourne [] si aucun média"
 							}
 						},
 						{
@@ -176,7 +181,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments", "event", "{{eventId}}"]
 								},
-								"description": "Récupère tous les commentaires d'un événement (public)"
+								"description": "Récupère tous les commentaires d'un événement (public) - Retourne [] si aucun commentaire"
 							}
 						}
 					]
@@ -223,7 +228,7 @@
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "auth", "register"]
 						},
-						"description": "Inscription d'un nouvel utilisateur"
+						"description": "Inscription d'un nouvel utilisateur - Retourne 409 si email existe déjà"
 					}
 				},
 				{
@@ -262,7 +267,7 @@
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "auth", "login"]
 						},
-						"description": "Connexion d'un utilisateur existant"
+						"description": "Connexion d'un utilisateur existant - Retourne 404 si utilisateur non trouvé"
 					}
 				}
 			],
@@ -288,7 +293,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users"]
 								},
-								"description": "Récupère tous les utilisateurs (ADMIN uniquement)"
+								"description": "Récupère tous les utilisateurs (ADMIN uniquement) - Retourne [] si aucun utilisateur"
 							}
 						},
 						{
@@ -305,7 +310,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}"]
 								},
-								"description": "Récupère un utilisateur par son ID"
+								"description": "Récupère un utilisateur par son ID - Retourne 404 si non trouvé"
 							}
 						},
 						{
@@ -331,7 +336,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}"]
 								},
-								"description": "Met à jour les informations d'un utilisateur"
+								"description": "Met à jour les informations d'un utilisateur - Retourne 404 si non trouvé"
 							}
 						},
 						{
@@ -357,7 +362,24 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}", "role"]
 								},
-								"description": "Change le rôle d'un utilisateur (ADMIN uniquement)"
+								"description": "Change le rôle d'un utilisateur (ADMIN uniquement) - Retourne 404 si non trouvé"
+							}
+						},
+						{
+							"name": "Delete User",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users/{{userId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "{{userId}}"]
+								},
+								"description": "Supprime un utilisateur (ADMIN uniquement) - Retourne 404 si non trouvé"
 							}
 						}
 					]
@@ -431,7 +453,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations", "{{civilizationId}}"]
 								},
-								"description": "Met à jour une civilisation existante"
+								"description": "Met à jour une civilisation existante - Retourne 404 si non trouvée"
 							}
 						},
 						{
@@ -448,7 +470,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations", "{{civilizationId}}"]
 								},
-								"description": "Supprime une civilisation"
+								"description": "Supprime une civilisation - Retourne 404 si non trouvée"
 							}
 						}
 					]
@@ -496,7 +518,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events"]
 								},
-								"description": "Crée un nouvel événement historique"
+								"description": "Crée un nouvel événement historique - Retourne 404 si civilisation non trouvée"
 							}
 						},
 						{
@@ -522,7 +544,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "{{eventId}}"]
 								},
-								"description": "Met à jour un événement existant"
+								"description": "Met à jour un événement existant - Retourne 404 si non trouvé"
 							}
 						},
 						{
@@ -539,7 +561,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "{{eventId}}"]
 								},
-								"description": "Supprime un événement"
+								"description": "Supprime un événement - Retourne 404 si non trouvé"
 							}
 						}
 					]
@@ -547,6 +569,23 @@
 				{
 					"name": "Media Management",
 					"item": [
+						{
+							"name": "Get Media by ID",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media/{{mediaId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media", "{{mediaId}}"]
+								},
+								"description": "Récupère un média spécifique par son ID - Retourne 404 si non trouvé"
+							}
+						},
 						{
 							"name": "Add Media by URL",
 							"event": [
@@ -646,6 +685,23 @@
 								},
 								"description": "Upload un fichier média vers le stockage"
 							}
+						},
+						{
+							"name": "Delete Media",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media/{{mediaId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media", "{{mediaId}}"]
+								},
+								"description": "Supprime un média - Retourne 404 si non trouvé"
+							}
 						}
 					]
 				},
@@ -653,7 +709,58 @@
 					"name": "Comment Management",
 					"item": [
 						{
+							"name": "Get All Comments",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/comments",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "comments"]
+								},
+								"description": "Récupère tous les commentaires - Retourne [] si aucun commentaire"
+							}
+						},
+						{
+							"name": "Get Comment by ID",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/comments/{{commentId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "comments", "{{commentId}}"]
+								},
+								"description": "Récupère un commentaire spécifique par son ID - Retourne 404 si non trouvé"
+							}
+						},
+						{
 							"name": "Add Comment",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.status === 'Created') {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.id) {",
+											"        pm.globals.set('commentId', jsonData.id);",
+											"        console.log('Comment ID saved:', jsonData.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -668,14 +775,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"content\": \"This is a fascinating historical event!\",\n    \"eventId\": {{eventId}}\n}"
+									"raw": "{\n    \"content\": \"This is a fascinating historical event!\",\n    \"eventId\": {{eventId}},\n    \"authorEmail\": \"john.doe@example.com\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/api/comments",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments"]
 								},
-								"description": "Ajoute un commentaire à un événement"
+								"description": "Ajoute un commentaire à un événement - Retourne 404 si événement non trouvé"
 							}
 						},
 						{
@@ -701,7 +808,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments", "{{commentId}}"]
 								},
-								"description": "Met à jour un commentaire existant"
+								"description": "Met à jour un commentaire existant - Retourne 404 si non trouvé"
 							}
 						},
 						{
@@ -718,7 +825,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments", "{{commentId}}"]
 								},
-								"description": "Supprime un commentaire"
+								"description": "Supprime un commentaire - Retourne 404 si non trouvé"
 							}
 						}
 					]
@@ -730,56 +837,161 @@
 			"name": "🧪 Tests & Validation",
 			"item": [
 				{
-					"name": "Test Public Access",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/events",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "events"]
-						},
-						"description": "Teste l'accès public aux événements (doit fonctionner sans token)"
-					}
-				},
-				{
-					"name": "Test Protected Access Without Token",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
+					"name": "Test Empty Lists",
+					"item": [
+						{
+							"name": "Test Empty Events List",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events"]
+								},
+								"description": "Teste le retour d'une liste vide d'événements (doit retourner [] avec 200 OK)"
 							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test Civilization\",\n    \"description\": \"Test description\",\n    \"startDate\": \"2000-01-01\",\n    \"endDate\": \"2023-01-01\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/api/civilizations",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "civilizations"]
-						},
-						"description": "Teste l'accès protégé sans token (doit échouer avec 401)"
-					}
+						{
+							"name": "Test Empty Media List",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media"]
+								},
+								"description": "Teste le retour d'une liste vide de médias (doit retourner [] avec 200 OK)"
+							}
+						}
+					]
 				},
 				{
-					"name": "Test Invalid Token",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [{"key": "token", "value": "invalid.token.here", "type": "string"}]
+					"name": "Test Not Found Errors",
+					"item": [
+						{
+							"name": "Test Event Not Found",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/99999",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "99999"]
+								},
+								"description": "Teste l'erreur 404 pour un événement non existant"
+							}
 						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/users",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "users"]
+						{
+							"name": "Test Civilization Not Found",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/civilizations/99999",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "civilizations", "99999"]
+								},
+								"description": "Teste l'erreur 404 pour une civilisation non existante"
+							}
 						},
-						"description": "Teste l'accès avec un token invalide (doit échouer avec 401)"
-					}
+						{
+							"name": "Test Media Not Found",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media/99999",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media", "99999"]
+								},
+								"description": "Teste l'erreur 404 pour un média non existant"
+							}
+						},
+						{
+							"name": "Test Comment Not Found",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/comments/99999",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "comments", "99999"]
+								},
+								"description": "Teste l'erreur 404 pour un commentaire non existant"
+							}
+						},
+						{
+							"name": "Test User Not Found",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users/99999",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "99999"]
+								},
+								"description": "Teste l'erreur 404 pour un utilisateur non existant"
+							}
+						}
+					]
+				},
+				{
+					"name": "Test Security",
+					"item": [
+						{
+							"name": "Test Protected Access Without Token",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Test Civilization\",\n    \"description\": \"Test description\",\n    \"startDate\": \"2000-01-01\",\n    \"endDate\": \"2023-01-01\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/civilizations",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "civilizations"]
+								},
+								"description": "Teste l'accès protégé sans token (doit échouer avec 401)"
+							}
+						},
+						{
+							"name": "Test Invalid Token",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "invalid.token.here", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users"]
+								},
+								"description": "Teste l'accès avec un token invalide (doit échouer avec 401)"
+							}
+						}
+					]
 				}
 			],
 			"description": "Tests de validation de sécurité et de fonctionnement"
@@ -803,7 +1015,29 @@
 				"exec": [
 					"// Script global exécuté après chaque requête",
 					"console.log('Response status:', pm.response.status);",
-					"console.log('Response time:', pm.response.responseTime + 'ms');"
+					"console.log('Response time:', pm.response.responseTime + 'ms');",
+					"",
+					"// Vérification automatique des codes de statut pour les listes vides",
+					"if (pm.request.url.toString().includes('/api/') && pm.request.method === 'GET') {",
+					"    if (pm.response.json() && Array.isArray(pm.response.json()) && pm.response.json().length === 0) {",
+					"        pm.test('Empty list returns 200 OK', function () {",
+					"            pm.response.to.have.status(200);",
+					"        });",
+					"        console.log('✅ Empty list handled correctly');",
+					"    }",
+					"}",
+					"",
+					"// Vérification automatique des erreurs 404",
+					"if (pm.response.status === 'Not Found') {",
+					"    pm.test('404 error has proper format', function () {",
+					"        const jsonData = pm.response.json();",
+					"        pm.expect(jsonData).to.have.property('timestamp');",
+					"        pm.expect(jsonData).to.have.property('message');",
+					"        pm.expect(jsonData).to.have.property('status', 404);",
+					"        pm.expect(jsonData).to.have.property('error');",
+					"    });",
+					"    console.log('✅ 404 error format is correct');",
+					"}"
 				]
 			}
 		}

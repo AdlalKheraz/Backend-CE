@@ -17,35 +17,47 @@ import org.springframework.web.bind.annotation.RestController;
 import com.chrono.event.entity.Civilization;
 import com.chrono.event.service.CivilizationService;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/civilizations")
+@Slf4j
 public class CivilizationController {
 
     @Autowired
     private CivilizationService civilizationService;
 
     @GetMapping
-    public List<Civilization> getAll() {
-        return civilizationService.getAll();
+    public ResponseEntity<List<Civilization>> getAll() {
+        log.info("Récupération de toutes les civilisations");
+        List<Civilization> civilizations = civilizationService.getAll();
+        return ResponseEntity.ok(civilizations);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Civilization> getById(@PathVariable Long id) {
+        log.info("Récupération de la civilisation avec l'ID: {}", id);
+        Civilization civilization = civilizationService.getById(id);
+        return ResponseEntity.ok(civilization);
     }
 
     @PostMapping
     public ResponseEntity<Civilization> create(@RequestBody Civilization civilization) {
+        log.info("Création d'une nouvelle civilisation: {}", civilization.getName());
         Civilization created = civilizationService.create(civilization);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Civilization> update(@PathVariable Long id, @RequestBody Civilization civilization) {
+        log.info("Mise à jour de la civilisation avec l'ID: {}", id);
         Civilization updated = civilizationService.update(id, civilization);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+        log.info("Suppression de la civilisation avec l'ID: {}", id);
         civilizationService.delete(id);
         return ResponseEntity.noContent().build();
     }

@@ -16,6 +16,8 @@ import lombok.Setter;
 public class MediaResponse {
     private Long id;
     private String url;
+    private String title;
+    private String description;
     private MediaType type;
     private Long eventId;
 }
