@@ -10,6 +10,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+
 import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
@@ -21,7 +24,7 @@ public class GlobalExceptionHandler {
         log.error("Média non trouvé: {}", ex.getMessage());
         
         Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
+        response.put("timestamp", LocalDateTime.now().toString());
         response.put("message", ex.getMessage());
         response.put("status", HttpStatus.NOT_FOUND.value());
         response.put("error", "Media Not Found");
@@ -34,7 +37,7 @@ public class GlobalExceptionHandler {
         log.error("Erreur de stockage: {}", ex.getMessage());
         
         Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
+        response.put("timestamp", LocalDateTime.now().toString());
         response.put("message", ex.getMessage());
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("error", "Storage Error");
@@ -47,10 +50,23 @@ public class GlobalExceptionHandler {
         log.error("Argument invalide: {}", ex.getMessage());
         
         Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
+        response.put("timestamp", LocalDateTime.now().toString());
         response.put("message", ex.getMessage());
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("error", "Invalid Argument");
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler({InvalidFormatException.class, JsonMappingException.class})
+    public ResponseEntity<Map<String, Object>> handleJsonErrors(Exception ex) {
+        log.error("Erreur de format JSON: {}", ex.getMessage());
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("message", "Format de données invalide: " + ex.getMessage());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Invalid Data Format");
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -65,7 +81,7 @@ public class GlobalExceptionHandler {
         );
         
         Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
+        response.put("timestamp", LocalDateTime.now().toString());
         response.put("message", "Erreur de validation");
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("error", "Validation Error");
@@ -78,11 +94,31 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         log.error("Erreur inattendue: {}", ex.getMessage(), ex);
         
+        String errorMessage = ex.getMessage();
+        if (errorMessage == null || errorMessage.isEmpty()) {
+            errorMessage = "Une erreur inattendue s'est produite";
+        }
+        
+        // Construire une chaîne de stack trace pour le débogage
+        StringBuilder stackTrace = new StringBuilder();
+        for (StackTraceElement element : ex.getStackTrace()) {
+            if (element.getClassName().startsWith("com.chrono")) {
+                stackTrace.append(element.toString()).append("\n");
+            }
+        }
+        
         Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
+        response.put("timestamp", LocalDateTime.now().toString());
         response.put("message", "Une erreur inattendue s'est produite");
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("error", "Internal Server Error");
+        response.put("exception", ex.getClass().getName());
+        response.put("errorMessage", errorMessage);
+        
+        // Inclure la stack trace uniquement en développement
+        if (stackTrace.length() > 0) {
+            response.put("trace", stackTrace.toString());
+        }
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }

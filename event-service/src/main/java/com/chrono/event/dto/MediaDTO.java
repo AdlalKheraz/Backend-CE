@@ -1,7 +1,5 @@
 package com.chrono.event.dto;
 
-import java.time.LocalDateTime;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDTO {
+public class MediaDTO {
     private Long id;
-    private String authorEmail;
-    private String content;
-    private LocalDateTime postedAt;
-    private Long eventId;
-}
+    private String url;
+    private String title;
+    private String description;
+    private String type;
+} 

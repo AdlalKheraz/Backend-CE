@@ -1,10 +1,9 @@
 {
 	"info": {
 		"_postman_id": "6b2d7d3c-5b43-4eef-b1c5-7f1c32e8c3e9",
-		"name": "Chrono Explorer API - Collection Complète",
-		"description": "Collection complète avec tous les endpoints incluant la gestion des retours vides et éléments non trouvés. Mise à jour avec les nouvelles fonctionnalités.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "12345678"
+		"name": "Chrono Explorer API",
+		"description": "Collection complète des endpoints de l'API Chrono Explorer",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
 		{
@@ -47,7 +46,7 @@
 	],
 	"item": [
 		{
-			"name": "🔓 Public Endpoints (No Auth Required)",
+			"name": "🔓 Public Endpoints",
 			"item": [
 				{
 					"name": "Events",
@@ -61,8 +60,7 @@
 									"raw": "{{baseUrl}}/api/events",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events"]
-								},
-								"description": "Récupère tous les événements historiques (public) - Retourne [] si aucun événement"
+								}
 							}
 						},
 						{
@@ -74,8 +72,7 @@
 									"raw": "{{baseUrl}}/api/events/{{eventId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "{{eventId}}"]
-								},
-								"description": "Récupère un événement spécifique par son ID (public) - Retourne 404 si non trouvé"
+								}
 							}
 						},
 						{
@@ -87,8 +84,43 @@
 									"raw": "{{baseUrl}}/api/events/civilization/{{civilizationId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "civilization", "{{civilizationId}}"]
-								},
-								"description": "Récupère tous les événements d'une civilisation (public) - Retourne [] si aucun événement"
+								}
+							}
+						},
+						{
+							"name": "Get All Enriched Events",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/enriched",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "enriched"]
+								}
+							}
+						},
+						{
+							"name": "Get Enriched Event by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/enriched/{{eventId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "enriched", "{{eventId}}"]
+								}
+							}
+						},
+						{
+							"name": "Get Enriched Events by Civilization",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/enriched/civilization/{{civilizationId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "enriched", "civilization", "{{civilizationId}}"]
+								}
 							}
 						}
 					]
@@ -105,8 +137,7 @@
 									"raw": "{{baseUrl}}/api/civilizations",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations"]
-								},
-								"description": "Récupère toutes les civilisations (public) - Retourne [] si aucune civilisation"
+								}
 							}
 						},
 						{
@@ -118,8 +149,7 @@
 									"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations", "{{civilizationId}}"]
-								},
-								"description": "Récupère une civilisation spécifique par son ID (public) - Retourne 404 si non trouvée"
+								}
 							}
 						}
 					]
@@ -136,8 +166,7 @@
 									"raw": "{{baseUrl}}/api/media",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media"]
-								},
-								"description": "Récupère tous les médias (public) - Retourne [] si aucun média"
+								}
 							}
 						},
 						{
@@ -149,8 +178,7 @@
 									"raw": "{{baseUrl}}/api/media/event/{{eventId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media", "event", "{{eventId}}"]
-								},
-								"description": "Récupère tous les médias d'un événement (public) - Retourne [] si aucun média"
+								}
 							}
 						},
 						{
@@ -162,8 +190,7 @@
 									"raw": "{{baseUrl}}/api/media/files/{{filename}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media", "files", "{{filename}}"]
-								},
-								"description": "Accède à un fichier média spécifique (public)"
+								}
 							}
 						}
 					]
@@ -180,14 +207,12 @@
 									"raw": "{{baseUrl}}/api/comments/event/{{eventId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments", "event", "{{eventId}}"]
-								},
-								"description": "Récupère tous les commentaires d'un événement (public) - Retourne [] si aucun commentaire"
+								}
 							}
 						}
 					]
 				}
-			],
-			"description": "Endpoints accessibles sans authentification"
+			]
 		},
 		{
 			"name": "🔐 Authentication",
@@ -205,44 +230,9 @@
 									"        pm.globals.set('token', jsonData.token);",
 									"        console.log('Token saved:', jsonData.token);",
 									"    }",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"password123\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/register",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "auth", "register"]
-						},
-						"description": "Inscription d'un nouvel utilisateur - Retourne 409 si email existe déjà"
-					}
-				},
-				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.status === 'OK') {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.token) {",
-									"        pm.globals.set('token', jsonData.token);",
-									"        console.log('Token saved:', jsonData.token);",
+									"    if (jsonData.userId) {",
+									"        pm.globals.set('userId', jsonData.userId);",
+									"        console.log('User ID saved:', jsonData.userId);",
 									"    }",
 									"}"
 								],
@@ -260,27 +250,83 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"password123\"\n}"
+							"raw": "{\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.status === 'OK') {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.globals.set('token', jsonData.token);",
+									"        console.log('Token saved:', jsonData.token);",
+									"    }",
+									"    if (jsonData.userId) {",
+									"        pm.globals.set('userId', jsonData.userId);",
+									"        console.log('User ID saved:', jsonData.userId);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/auth/login",
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "auth", "login"]
-						},
-						"description": "Connexion d'un utilisateur existant - Retourne 404 si utilisateur non trouvé"
+						}
 					}
 				}
-			],
-			"description": "Endpoints d'authentification"
+			]
 		},
 		{
-			"name": "🔒 Protected Endpoints (Auth Required)",
+			"name": "🔒 Protected Endpoints",
 			"item": [
 				{
 					"name": "User Management",
 					"item": [
 						{
-							"name": "Get All Users",
+							"name": "Get Current User",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users/me",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "me"]
+								}
+							}
+						},
+						{
+							"name": "Get All Users (Admin)",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -292,8 +338,7 @@
 									"raw": "{{baseUrl}}/api/users",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users"]
-								},
-								"description": "Récupère tous les utilisateurs (ADMIN uniquement) - Retourne [] si aucun utilisateur"
+								}
 							}
 						},
 						{
@@ -309,12 +354,11 @@
 									"raw": "{{baseUrl}}/api/users/{{userId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}"]
-								},
-								"description": "Récupère un utilisateur par son ID - Retourne 404 si non trouvé"
+								}
 							}
 						},
 						{
-							"name": "Update User",
+							"name": "Update User (Admin)",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -329,18 +373,67 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"firstName\": \"John Updated\",\n    \"lastName\": \"Doe Updated\",\n    \"email\": \"john.updated@example.com\"\n}"
+									"raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"User\",\n    \"email\": \"updateduser@example.com\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/api/users/{{userId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}"]
-								},
-								"description": "Met à jour les informations d'un utilisateur - Retourne 404 si non trouvé"
+								}
 							}
 						},
 						{
-							"name": "Change User Role",
+							"name": "Update Own Profile",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"Profile\",\n    \"email\": \"updated-profile@example.com\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/users/profile",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "profile"]
+								}
+							}
+						},
+						{
+							"name": "Update Profile with Password",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"Profile\",\n    \"email\": \"updated-profile@example.com\",\n    \"currentPassword\": \"password123\",\n    \"newPassword\": \"newPassword123\",\n    \"confirmPassword\": \"newPassword123\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/users/profile",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "profile"]
+								}
+							}
+						},
+						{
+							"name": "Change User Role (Admin)",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -361,12 +454,11 @@
 									"raw": "{{baseUrl}}/api/users/{{userId}}/role",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}", "role"]
-								},
-								"description": "Change le rôle d'un utilisateur (ADMIN uniquement) - Retourne 404 si non trouvé"
+								}
 							}
 						},
 						{
-							"name": "Delete User",
+							"name": "Delete User (Admin or Self)",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -378,9 +470,45 @@
 									"raw": "{{baseUrl}}/api/users/{{userId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}"]
-								},
-								"description": "Supprime un utilisateur (ADMIN uniquement) - Retourne 404 si non trouvé"
+								}
 							}
+						},
+						{
+							"name": "Delete Own Account",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users/me",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "me"]
+								},
+								"description": "Permet à un utilisateur de supprimer son propre compte avec son token JWT - Retourne 204 No Content en cas de succès"
+							},
+							"response": [
+								{
+									"name": "Successful account deletion",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/users/me",
+											"host": ["{{baseUrl}}"],
+											"path": ["api", "users", "me"]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								}
+							]
 						}
 					]
 				},
@@ -426,8 +554,7 @@
 									"raw": "{{baseUrl}}/api/civilizations",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations"]
-								},
-								"description": "Crée une nouvelle civilisation"
+								}
 							}
 						},
 						{
@@ -452,8 +579,7 @@
 									"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations", "{{civilizationId}}"]
-								},
-								"description": "Met à jour une civilisation existante - Retourne 404 si non trouvée"
+								}
 							}
 						},
 						{
@@ -469,8 +595,7 @@
 									"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations", "{{civilizationId}}"]
-								},
-								"description": "Supprime une civilisation - Retourne 404 si non trouvée"
+								}
 							}
 						}
 					]
@@ -511,14 +636,13 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": \"Fall of Rome\",\n    \"description\": \"The fall of the Western Roman Empire\",\n    \"date\": \"0476-09-04\",\n    \"civilizationId\": {{civilizationId}}\n}"
+									"raw": "{\n    \"title\": \"Foundation of Rome\",\n    \"description\": \"The legendary founding of Rome by Romulus\",\n    \"date\": \"0753-04-21\",\n    \"civilizationId\": {{civilizationId}}\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/api/events",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events"]
-								},
-								"description": "Crée un nouvel événement historique - Retourne 404 si civilisation non trouvée"
+								}
 							}
 						},
 						{
@@ -537,14 +661,13 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": \"Fall of Rome Updated\",\n    \"description\": \"Updated description of the fall of the Western Roman Empire\",\n    \"date\": \"0476-09-04\",\n    \"civilizationId\": {{civilizationId}}\n}"
+									"raw": "{\n    \"title\": \"Foundation of Rome (Updated)\",\n    \"description\": \"Updated description of Rome's foundation\",\n    \"date\": \"0753-04-21\",\n    \"civilizationId\": {{civilizationId}}\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/api/events/{{eventId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "{{eventId}}"]
-								},
-								"description": "Met à jour un événement existant - Retourne 404 si non trouvé"
+								}
 							}
 						},
 						{
@@ -560,8 +683,7 @@
 									"raw": "{{baseUrl}}/api/events/{{eventId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "{{eventId}}"]
-								},
-								"description": "Supprime un événement - Retourne 404 si non trouvé"
+								}
 							}
 						}
 					]
@@ -570,67 +692,7 @@
 					"name": "Media Management",
 					"item": [
 						{
-							"name": "Get Media by ID",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/media/{{mediaId}}",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "media", "{{mediaId}}"]
-								},
-								"description": "Récupère un média spécifique par son ID - Retourne 404 si non trouvé"
-							}
-						},
-						{
-							"name": "Add Media by URL",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"if (pm.response.status === 'Created') {",
-											"    var jsonData = pm.response.json();",
-											"    if (jsonData.id) {",
-											"        pm.globals.set('mediaId', jsonData.id);",
-											"        console.log('Media ID saved:', jsonData.id);",
-											"    }",
-											"}"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
-								},
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"url\": \"https://example.com/roman-colosseum.jpg\",\n    \"title\": \"Roman Colosseum\",\n    \"description\": \"The Colosseum is an oval amphitheatre in Rome, Italy\",\n    \"eventId\": {{eventId}},\n    \"type\": \"IMAGE\"\n}"
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/media",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "media"]
-								},
-								"description": "Ajoute un média par URL externe"
-							}
-						},
-						{
-							"name": "Upload Media File",
+							"name": "Upload Media",
 							"event": [
 								{
 									"listen": "test",
@@ -661,29 +723,55 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": [],
-											"description": "Fichier à uploader (image ou vidéo)"
+											"src": "/path/to/your/file.jpg"
 										},
 										{
-											"key": "type",
-											"value": "IMAGE",
-											"type": "text",
-											"description": "Type de média (IMAGE ou VIDEO)"
+											"key": "title",
+											"value": "Test Media",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "Description of test media",
+											"type": "text"
 										},
 										{
 											"key": "eventId",
 											"value": "{{eventId}}",
-											"type": "text",
-											"description": "ID de l'événement associé"
+											"type": "text"
 										}
 									]
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/media/upload",
+									"raw": "{{baseUrl}}/api/media",
 									"host": ["{{baseUrl}}"],
-									"path": ["api", "media", "upload"]
+									"path": ["api", "media"]
+								}
+							}
+						},
+						{
+							"name": "Update Media",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
 								},
-								"description": "Upload un fichier média vers le stockage"
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Updated Media Title\",\n    \"description\": \"Updated media description\",\n    \"eventId\": {{eventId}}\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/media/{{mediaId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media", "{{mediaId}}"]
+								}
 							}
 						},
 						{
@@ -699,8 +787,7 @@
 									"raw": "{{baseUrl}}/api/media/{{mediaId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media", "{{mediaId}}"]
-								},
-								"description": "Supprime un média - Retourne 404 si non trouvé"
+								}
 							}
 						}
 					]
@@ -708,40 +795,6 @@
 				{
 					"name": "Comment Management",
 					"item": [
-						{
-							"name": "Get All Comments",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/comments",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "comments"]
-								},
-								"description": "Récupère tous les commentaires - Retourne [] si aucun commentaire"
-							}
-						},
-						{
-							"name": "Get Comment by ID",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/comments/{{commentId}}",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "comments", "{{commentId}}"]
-								},
-								"description": "Récupère un commentaire spécifique par son ID - Retourne 404 si non trouvé"
-							}
-						},
 						{
 							"name": "Add Comment",
 							"event": [
@@ -775,14 +828,13 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"content\": \"This is a fascinating historical event!\",\n    \"eventId\": {{eventId}},\n    \"authorEmail\": \"john.doe@example.com\"\n}"
+									"raw": "{\n    \"content\": \"This is a test comment.\",\n    \"eventId\": {{eventId}}\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/api/comments",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments"]
-								},
-								"description": "Ajoute un commentaire à un événement - Retourne 404 si événement non trouvé"
+								}
 							}
 						},
 						{
@@ -801,14 +853,13 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"content\": \"Updated comment content\"\n}"
+									"raw": "{\n    \"content\": \"This is an updated comment.\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/api/comments/{{commentId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments", "{{commentId}}"]
-								},
-								"description": "Met à jour un commentaire existant - Retourne 404 si non trouvé"
+								}
 							}
 						},
 						{
@@ -824,177 +875,12 @@
 									"raw": "{{baseUrl}}/api/comments/{{commentId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments", "{{commentId}}"]
-								},
-								"description": "Supprime un commentaire - Retourne 404 si non trouvé"
+								}
 							}
 						}
 					]
 				}
-			],
-			"description": "Endpoints nécessitant une authentification"
-		},
-		{
-			"name": "🧪 Tests & Validation",
-			"item": [
-				{
-					"name": "Test Empty Lists",
-					"item": [
-						{
-							"name": "Test Empty Events List",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/events",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "events"]
-								},
-								"description": "Teste le retour d'une liste vide d'événements (doit retourner [] avec 200 OK)"
-							}
-						},
-						{
-							"name": "Test Empty Media List",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/media",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "media"]
-								},
-								"description": "Teste le retour d'une liste vide de médias (doit retourner [] avec 200 OK)"
-							}
-						}
-					]
-				},
-				{
-					"name": "Test Not Found Errors",
-					"item": [
-						{
-							"name": "Test Event Not Found",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/events/99999",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "events", "99999"]
-								},
-								"description": "Teste l'erreur 404 pour un événement non existant"
-							}
-						},
-						{
-							"name": "Test Civilization Not Found",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/civilizations/99999",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "civilizations", "99999"]
-								},
-								"description": "Teste l'erreur 404 pour une civilisation non existante"
-							}
-						},
-						{
-							"name": "Test Media Not Found",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/media/99999",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "media", "99999"]
-								},
-								"description": "Teste l'erreur 404 pour un média non existant"
-							}
-						},
-						{
-							"name": "Test Comment Not Found",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/comments/99999",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "comments", "99999"]
-								},
-								"description": "Teste l'erreur 404 pour un commentaire non existant"
-							}
-						},
-						{
-							"name": "Test User Not Found",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/users/99999",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "users", "99999"]
-								},
-								"description": "Teste l'erreur 404 pour un utilisateur non existant"
-							}
-						}
-					]
-				},
-				{
-					"name": "Test Security",
-					"item": [
-						{
-							"name": "Test Protected Access Without Token",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"Test Civilization\",\n    \"description\": \"Test description\",\n    \"startDate\": \"2000-01-01\",\n    \"endDate\": \"2023-01-01\"\n}"
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/civilizations",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "civilizations"]
-								},
-								"description": "Teste l'accès protégé sans token (doit échouer avec 401)"
-							}
-						},
-						{
-							"name": "Test Invalid Token",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [{"key": "token", "value": "invalid.token.here", "type": "string"}]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/users",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "users"]
-								},
-								"description": "Teste l'accès avec un token invalide (doit échouer avec 401)"
-							}
-						}
-					]
-				}
-			],
-			"description": "Tests de validation de sécurité et de fonctionnement"
+			]
 		}
 	],
 	"event": [
@@ -1015,29 +901,7 @@
 				"exec": [
 					"// Script global exécuté après chaque requête",
 					"console.log('Response status:', pm.response.status);",
-					"console.log('Response time:', pm.response.responseTime + 'ms');",
-					"",
-					"// Vérification automatique des codes de statut pour les listes vides",
-					"if (pm.request.url.toString().includes('/api/') && pm.request.method === 'GET') {",
-					"    if (pm.response.json() && Array.isArray(pm.response.json()) && pm.response.json().length === 0) {",
-					"        pm.test('Empty list returns 200 OK', function () {",
-					"            pm.response.to.have.status(200);",
-					"        });",
-					"        console.log('✅ Empty list handled correctly');",
-					"    }",
-					"}",
-					"",
-					"// Vérification automatique des erreurs 404",
-					"if (pm.response.status === 'Not Found') {",
-					"    pm.test('404 error has proper format', function () {",
-					"        const jsonData = pm.response.json();",
-					"        pm.expect(jsonData).to.have.property('timestamp');",
-					"        pm.expect(jsonData).to.have.property('message');",
-					"        pm.expect(jsonData).to.have.property('status', 404);",
-					"        pm.expect(jsonData).to.have.property('error');",
-					"    });",
-					"    console.log('✅ 404 error format is correct');",
-					"}"
+					"console.log('Response time:', pm.response.responseTime + 'ms');"
 				]
 			}
 		}

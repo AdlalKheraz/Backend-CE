@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,86 +20,83 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EventNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleEventNotFoundException(EventNotFoundException ex) {
+    public ResponseEntity<com.chrono.event.exception.ErrorResponse> handleEventNotFoundException(EventNotFoundException ex) {
         log.error("Événement non trouvé: {}", ex.getMessage());
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("message", ex.getMessage());
-        response.put("status", HttpStatus.NOT_FOUND.value());
-        response.put("error", "Event Not Found");
-
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(CivilizationNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleCivilizationNotFoundException(CivilizationNotFoundException ex) {
+    public ResponseEntity<com.chrono.event.exception.ErrorResponse> handleCivilizationNotFoundException(CivilizationNotFoundException ex) {
         log.error("Civilisation non trouvée: {}", ex.getMessage());
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("message", ex.getMessage());
-        response.put("status", HttpStatus.NOT_FOUND.value());
-        response.put("error", "Civilization Not Found");
-
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(CommentNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleCommentNotFoundException(CommentNotFoundException ex) {
+    public ResponseEntity<com.chrono.event.exception.ErrorResponse> handleCommentNotFoundException(CommentNotFoundException ex) {
         log.error("Commentaire non trouvé: {}", ex.getMessage());
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("message", ex.getMessage());
-        response.put("status", HttpStatus.NOT_FOUND.value());
-        response.put("error", "Comment Not Found");
-
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+    public ResponseEntity<com.chrono.event.exception.ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.error("Argument invalide: {}", ex.getMessage());
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("message", ex.getMessage());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Invalid Argument");
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<com.chrono.event.exception.ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        log.error("Erreur de conversion de type: {}", ex.getMessage());
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST, 
+                "Erreur de conversion de paramètre: " + ex.getName() + " - " + ex.getMessage()
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<com.chrono.event.exception.ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         log.error("Erreur de validation: {}", ex.getMessage());
-        
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
             errors.put(error.getField(), error.getDefaultMessage())
         );
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("message", "Erreur de validation");
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Validation Error");
-        response.put("details", errors);
+        String errorMessage = "Erreur de validation";
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage);
+    }
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(ResourceAccessException.class)
+    public ResponseEntity<com.chrono.event.exception.ErrorResponse> handleResourceAccessException(ResourceAccessException ex) {
+        log.error("Erreur d'accès au service externe: {}", ex.getMessage());
+        return buildErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE, 
+                "Le service externe n'est pas disponible. Veuillez réessayer plus tard."
+        );
+    }
+    
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<com.chrono.event.exception.ErrorResponse> handleRestClientException(RestClientException ex) {
+        log.error("Erreur de communication avec un service externe: {}", ex.getMessage());
+        return buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR, 
+                "Erreur de communication avec un service externe. Veuillez réessayer plus tard."
+        );
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+    public ResponseEntity<com.chrono.event.exception.ErrorResponse> handleGenericException(Exception ex) {
         log.error("Erreur inattendue: {}", ex.getMessage(), ex);
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("message", "Une erreur inattendue s'est produite");
-        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.put("error", "Internal Server Error");
+        return buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR, 
+                "Une erreur inattendue s'est produite. Veuillez réessayer plus tard."
+        );
+    }
 
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    private ResponseEntity<com.chrono.event.exception.ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
+        com.chrono.event.exception.ErrorResponse errorResponse = new com.chrono.event.exception.ErrorResponse(
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                LocalDateTime.now().toString()
+        );
+        return new ResponseEntity<>(errorResponse, status);
     }
 } 

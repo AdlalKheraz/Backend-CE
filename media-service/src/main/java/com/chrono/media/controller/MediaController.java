@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/")
+@RequestMapping("/media")
 @RequiredArgsConstructor
 public class MediaController {
 
@@ -38,10 +38,15 @@ public class MediaController {
     @PostMapping
     public ResponseEntity<MediaResponse> addMedia(@RequestBody MediaRequest request, HttpServletRequest httpRequest) {
         String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
-        log.info("Ajout d'un média par l'utilisateur: {}", userId);
+        log.info("Ajout d'un média par URL par l'utilisateur: {}", userId);
         
-        MediaResponse response = mediaService.addMedia(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            MediaResponse response = mediaService.addMedia(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("Erreur lors de l'ajout du média: {}", e.getMessage(), e);
+            throw e;
+        }
     }
     
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -51,19 +56,29 @@ public class MediaController {
             HttpServletRequest httpRequest) {
         
         String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
-        log.info("Upload d'un média par l'utilisateur: {}", userId);
+        log.info("Upload d'un fichier média par l'utilisateur: {}", userId);
         
-        MediaResponse response = mediaService.uploadMedia(file, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            MediaResponse response = mediaService.uploadMedia(file, request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("Erreur lors de l'upload du média: {}", e.getMessage(), e);
+            throw e;
+        }
     }
     
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<MediaResponse>> getAllMedia(HttpServletRequest httpRequest) {
         String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
         log.info("Récupération de tous les médias par l'utilisateur: {}", userId);
         
-        List<MediaResponse> mediaList = mediaService.getAllMedia();
-        return ResponseEntity.ok(mediaList);
+        try {
+            List<MediaResponse> mediaList = mediaService.getAllMedia();
+            return ResponseEntity.ok(mediaList);
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération de tous les médias: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @GetMapping("/{id}")
@@ -71,8 +86,13 @@ public class MediaController {
         String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
         log.info("Récupération du média {} par l'utilisateur: {}", id, userId);
         
-        MediaResponse media = mediaService.getMediaById(id);
-        return ResponseEntity.ok(media);
+        try {
+            MediaResponse media = mediaService.getMediaById(id);
+            return ResponseEntity.ok(media);
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération du média {}: {}", id, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @GetMapping("/event/{eventId}")
@@ -80,17 +100,27 @@ public class MediaController {
         String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
         log.info("Récupération des médias de l'événement: {} par l'utilisateur: {}", eventId, userId);
         
-        List<MediaResponse> mediaList = mediaService.getMediaByEvent(eventId);
-        return ResponseEntity.ok(mediaList);
+        try {
+            List<MediaResponse> mediaList = mediaService.getMediaByEvent(eventId);
+            return ResponseEntity.ok(mediaList);
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération des médias pour l'événement {}: {}", eventId, e.getMessage(), e);
+            throw e;
+        }
     }
     
     @GetMapping("/event/{eventId}/uploaded")
     public ResponseEntity<List<MediaResponse>> getUploadedMediaByEvent(@PathVariable Long eventId, HttpServletRequest httpRequest) {
         String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
-        log.info("Récupération des médias téléchargés uniquement pour l'événement: {} par l'utilisateur: {}", eventId, userId);
+        log.info("Récupération des médias téléchargés pour l'événement: {} par l'utilisateur: {}", eventId, userId);
         
-        List<MediaResponse> mediaList = mediaService.getUploadedMediaByEvent(eventId);
-        return ResponseEntity.ok(mediaList);
+        try {
+            List<MediaResponse> mediaList = mediaService.getUploadedMediaByEvent(eventId);
+            return ResponseEntity.ok(mediaList);
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération des médias téléchargés pour l'événement {}: {}", eventId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -98,7 +128,12 @@ public class MediaController {
         String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
         log.info("Suppression du média {} par l'utilisateur: {}", id, userId);
         
-        mediaService.deleteMedia(id);
-        return ResponseEntity.noContent().build();
+        try {
+            mediaService.deleteMedia(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression du média {}: {}", id, e.getMessage(), e);
+            throw e;
+        }
     }
 }

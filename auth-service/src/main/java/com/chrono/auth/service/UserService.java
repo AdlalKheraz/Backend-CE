@@ -3,13 +3,17 @@ package com.chrono.auth.service;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.chrono.auth.dto.ChangeRoleRequest;
+import com.chrono.auth.dto.UserProfileUpdateRequest;
 import com.chrono.auth.dto.UserResponse;
 import com.chrono.auth.entity.Role;
 import com.chrono.auth.entity.User;
 import com.chrono.auth.exception.EmailAlreadyExistsException;
+import com.chrono.auth.exception.InvalidPasswordException;
 import com.chrono.auth.exception.UserNotFoundException;
 import com.chrono.auth.repository.UserRepository;
 
@@ -22,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UserResponse> getAllUsers() {
         log.info("Récupération de tous les utilisateurs");
@@ -78,6 +83,59 @@ public class UserService {
         
         return toUserResponse(savedUser);
     }
+    
+    public UserResponse updateUserProfile(Long id, UserProfileUpdateRequest profileUpdate) {
+        log.info("Mise à jour du profil utilisateur avec l'ID: {}", id);
+        
+        if (profileUpdate == null) {
+            log.error("Erreur: profileUpdate est null");
+            throw new IllegalArgumentException("Les données de profil ne peuvent pas être nulles");
+        }
+        
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'ID: " + id));
+
+        // Vérifier si l'email est déjà utilisé par un autre utilisateur
+        if (!existingUser.getEmail().equals(profileUpdate.getEmail()) && 
+            userRepository.existsByEmail(profileUpdate.getEmail())) {
+            throw new EmailAlreadyExistsException("Cet email est déjà utilisé");
+        }
+
+        // Mettre à jour les données de l'utilisateur
+        existingUser.setFirstName(profileUpdate.getFirstName());
+        existingUser.setLastName(profileUpdate.getLastName());
+        existingUser.setEmail(profileUpdate.getEmail());
+        
+        // Vérifier si une mise à jour du mot de passe est demandée
+        boolean passwordUpdateRequested = StringUtils.hasText(profileUpdate.getCurrentPassword()) && 
+                                         StringUtils.hasText(profileUpdate.getNewPassword()) && 
+                                         StringUtils.hasText(profileUpdate.getConfirmPassword());
+        
+        if (passwordUpdateRequested) {
+            log.info("Demande de mise à jour du mot de passe détectée pour l'utilisateur avec l'ID: {}", id);
+            
+            // Vérifier que le nouveau mot de passe et sa confirmation correspondent
+            if (!profileUpdate.getNewPassword().equals(profileUpdate.getConfirmPassword())) {
+                log.error("Erreur: Les mots de passe ne correspondent pas");
+                throw new InvalidPasswordException("Le nouveau mot de passe et sa confirmation ne correspondent pas");
+            }
+            
+            // Vérifier que le mot de passe actuel est correct
+            if (!passwordEncoder.matches(profileUpdate.getCurrentPassword(), existingUser.getPassword())) {
+                log.error("Erreur: Mot de passe actuel incorrect pour l'utilisateur avec l'ID: {}", id);
+                throw new InvalidPasswordException("Le mot de passe actuel est incorrect");
+            }
+            
+            // Mettre à jour le mot de passe
+            existingUser.setPassword(passwordEncoder.encode(profileUpdate.getNewPassword()));
+            log.info("Mot de passe mis à jour avec succès pour l'utilisateur avec l'ID: {}", id);
+        }
+
+        User savedUser = userRepository.save(existingUser);
+        log.info("Profil utilisateur mis à jour avec succès: {}", savedUser.getEmail());
+        
+        return toUserResponse(savedUser);
+    }
 
     public UserResponse changeUserRole(Long id, ChangeRoleRequest request) {
         log.info("Changement de rôle pour l'utilisateur avec l'ID: {} vers {}", id, request.getRole());
@@ -108,7 +166,7 @@ public class UserService {
         log.info("Utilisateur supprimé avec succès");
     }
 
-    private UserResponse toUserResponse(User user) {
+    public UserResponse toUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())

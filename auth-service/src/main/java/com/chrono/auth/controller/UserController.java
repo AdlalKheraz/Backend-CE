@@ -7,26 +7,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.chrono.auth.dto.ChangeRoleRequest;
+import com.chrono.auth.dto.UserProfileUpdateRequest;
 import com.chrono.auth.dto.UserResponse;
 import com.chrono.auth.entity.User;
+import com.chrono.auth.exception.EmailAlreadyExistsException;
+import com.chrono.auth.exception.InvalidPasswordException;
+import com.chrono.auth.exception.UserNotFoundException;
 import com.chrono.auth.repository.UserRepository;
 import com.chrono.auth.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Contrôleur pour les opérations génériques sur les utilisateurs
+ */
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@Validated
 public class UserController {
 
     @Autowired
@@ -65,17 +76,34 @@ public class UserController {
     }
     
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody User userUpdate) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.debug("PUT /users/{} - Utilisateur: {}, Rôles: {}", id, auth.getName(), auth.getAuthorities());
         
-        // Vérifier si l'utilisateur est admin ou s'il accède à son propre profil
-        if (hasAdminRole(auth) || isUserAccessingOwnProfile(auth, id)) {
-            UserResponse updatedUser = userService.updateUser(id, userUpdate);
+        UserResponse updatedUser = userService.updateUser(id, userUpdate);
+        return ResponseEntity.ok(updatedUser);
+    }
+    
+    @PostMapping("/profile")
+    public ResponseEntity<UserResponse> updateOwnProfile(@Valid @RequestBody UserProfileUpdateRequest profileUpdate) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = auth.getName();
+        log.info("POST /users/profile - Mise à jour du profil pour l'utilisateur: {}", currentUserEmail);
+        
+        try {
+            User currentUser = userRepository.findByEmail(currentUserEmail)
+                    .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'email: " + currentUserEmail));
+            
+            UserResponse updatedUser = userService.updateUserProfile(currentUser.getId(), profileUpdate);
             return ResponseEntity.ok(updatedUser);
-        } else {
-            log.warn("Accès non autorisé - User {} tente de modifier le profil {}", auth.getName(), id);
-            throw new RuntimeException("Accès non autorisé à ce profil utilisateur");
+        } catch (UserNotFoundException | EmailAlreadyExistsException | InvalidPasswordException e) {
+            log.error("Erreur spécifique: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Erreur inattendue lors de la mise à jour du profil pour l'utilisateur {}: {}", 
+                    currentUserEmail, e.getMessage(), e);
+            throw new RuntimeException("Une erreur est survenue lors de la mise à jour du profil: " + e.getMessage());
         }
     }
     
@@ -90,13 +118,18 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.debug("DELETE /users/{} - Utilisateur: {}, Rôles: {}", id, auth.getName(), auth.getAuthorities());
         
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        // Vérifier si l'utilisateur est admin ou s'il supprime son propre compte
+        if (hasAdminRole(auth) || isUserAccessingOwnProfile(auth, id)) {
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            log.warn("Accès non autorisé - User {} tente de supprimer le compte {}", auth.getName(), id);
+            throw new RuntimeException("Vous n'êtes pas autorisé à supprimer ce compte utilisateur");
+        }
     }
     
     /**

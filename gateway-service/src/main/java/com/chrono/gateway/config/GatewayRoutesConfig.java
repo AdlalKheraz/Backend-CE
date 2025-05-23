@@ -40,21 +40,22 @@ public class GatewayRoutesConfig {
                             .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config()));
                 })
                 .uri("http://localhost:8081"))
-            
-            // Route spécifique pour GET /api/media qui redirige vers /all
-            .route("media-service-all", r -> r.path("/api/media").and().method(HttpMethod.GET)
-                .filters(f -> f.rewritePath("/api/media", "/all"))
-                .uri("http://localhost:8082"))
                 
             // Media service routes - GET is public, others require auth
             .route("media-service-public", r -> r.path("/api/media/**").and().method(HttpMethod.GET)
-                .filters(f -> f.stripPrefix(2))
+                .filters(f -> {
+                    log.debug("Route pour GET /api/media/**");
+                    return f.stripPrefix(1);
+                })
                 .uri("http://localhost:8082"))
                 
             // Media service protected routes - for POST, PUT, DELETE
             .route("media-service-protected", r -> r.path("/api/media/**").and().method(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
-                .filters(f -> f.stripPrefix(2)
-                              .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
+                .filters(f -> {
+                    log.debug("Route protégée pour POST/PUT/DELETE /api/media/**");
+                    return f.stripPrefix(1)
+                            .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config()));
+                })
                 .uri("http://localhost:8082"))
                 
             // Public GET routes for comments - no auth required
