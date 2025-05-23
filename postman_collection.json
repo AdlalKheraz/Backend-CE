@@ -39,6 +39,239 @@
 	],
 	"item": [
 		{
+			"name": "Public Endpoints",
+			"item": [
+				{
+					"name": "1. Events",
+					"item": [
+						{
+							"name": "Get All Events (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events"
+									]
+								},
+								"description": "Retrieve all historical events without authentication"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Event by ID (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"{{eventId}}"
+									]
+								},
+								"description": "Retrieve a specific historical event by its ID without authentication"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Events by Civilization (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/civilization/{{civilizationId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"civilization",
+										"{{civilizationId}}"
+									]
+								},
+								"description": "Retrieve all events belonging to a specific civilization without authentication"
+							},
+							"response": []
+						}
+					],
+					"description": "Public endpoints for accessing historical events"
+				},
+				{
+					"name": "2. Civilizations",
+					"item": [
+						{
+							"name": "Get All Civilizations (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/civilizations",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"civilizations"
+									]
+								},
+								"description": "Retrieve all historical civilizations without authentication"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Civilization by ID (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"civilizations",
+										"{{civilizationId}}"
+									]
+								},
+								"description": "Retrieve a specific historical civilization by its ID without authentication"
+							},
+							"response": []
+						}
+					],
+					"description": "Public endpoints for accessing historical civilizations"
+				},
+				{
+					"name": "3. Comments",
+					"item": [
+						{
+							"name": "Get Comments for Event (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/comments/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"comments",
+										"event",
+										"{{eventId}}"
+									]
+								},
+								"description": "Retrieve all comments for a specific event without authentication"
+							},
+							"response": []
+						}
+					],
+					"description": "Public endpoints for accessing comments"
+				},
+				{
+					"name": "4. Media",
+					"item": [
+						{
+							"name": "Get All Media (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"media"
+									]
+								},
+								"description": "Retrieve all media without authentication"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Media for Event (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"media",
+										"event",
+										"{{eventId}}"
+									]
+								},
+								"description": "Retrieve all media associated with a specific event without authentication"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Uploaded Media for Event (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media/event/{{eventId}}/uploaded",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"media",
+										"event",
+										"{{eventId}}",
+										"uploaded"
+									]
+								},
+								"description": "Retrieve only uploaded media files (not external URLs) associated with a specific event without authentication"
+							},
+							"response": []
+						},
+						{
+							"name": "Access Media File (Public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media/files/{{filename}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"media",
+										"files",
+										"{{filename}}"
+									]
+								},
+								"description": "Retrieve a media file from MinIO storage (replace {{filename}} with the actual filename)"
+							},
+							"response": []
+						}
+					],
+					"description": "Public endpoints for accessing media"
+				}
+			],
+			"description": "Endpoints accessible without authentication for public access"
+		},
+		{
 			"name": "Authentication Service",
 			"item": [
 				{
@@ -156,6 +389,61 @@
 						"description": "Authenticate an existing user and retrieve a JWT token"
 					},
 					"response": []
+				}
+			],
+			"description": "Endpoints for authentication"
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Afficher le résultat brut pour débogage",
+									"console.log(\"Raw response:\", responseBody);",
+									"",
+									"// Vérifier que la réponse est bien du JSON",
+									"try {",
+									"    var jsonData = pm.response.json();",
+									"    console.log(\"Parsed JSON:\", jsonData);",
+									"} catch (e) {",
+									"    console.error(\"Error parsing response: \", e);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						},
+						"description": "Retrieve all users (Admin only)"
+					},
+					"response": []
 				},
 				{
 					"name": "Get User Profile",
@@ -203,7 +491,7 @@
 								"{{userId}}"
 							]
 						},
-						"description": "Retrieve user information by ID (requires authentication)"
+						"description": "Retrieve user information by ID (requires authentication, can only access own profile or admin can access any)"
 					},
 					"response": []
 				},
@@ -327,58 +615,9 @@
 						"description": "Modify a user's role (Admin only)"
 					},
 					"response": []
-				},
-				{
-					"name": "Get All Users",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Afficher le résultat brut pour débogage",
-									"console.log(\"Raw response:\", responseBody);",
-									"",
-									"// Vérifier que la réponse est bien du JSON",
-									"try {",
-									"    var jsonData = pm.response.json();",
-									"    console.log(\"Parsed JSON:\", jsonData);",
-									"} catch (e) {",
-									"    console.error(\"Error parsing response: \", e);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/users",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"users"
-							]
-						},
-						"description": "Retrieve all users (Admin only)"
-					},
-					"response": []
 				}
 			],
-			"description": "Endpoints for user authentication, registration and profile management"
+			"description": "Endpoints for user management"
 		},
 		{
 			"name": "Civilization Service",
@@ -449,7 +688,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Empire Romain\",\n    \"description\": \"L'Empire romain est l'un des plus grands empires de l'histoire\",\n    \"startDate\": \"0027-01-01\",\n    \"endDate\": \"0476-09-04\"\n}"
+							"raw": "{\n    \"name\": \"Roman Empire\",\n    \"description\": \"The Roman Empire was one of the largest empires in history\",\n    \"startDate\": \"0027-01-01\",\n    \"endDate\": \"0476-09-04\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/civilizations",
@@ -462,99 +701,6 @@
 							]
 						},
 						"description": "Create a new historical civilization with name, description, start and end dates"
-					},
-					"response": []
-				},
-				{
-					"name": "Create Civilization (Direct to Service)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Afficher le résultat brut pour débogage",
-									"console.log(\"Raw response:\", responseBody);",
-									"",
-									"// Vérifier que la réponse est bien du JSON",
-									"try {",
-									"    var jsonData = pm.response.json();",
-									"    console.log(\"Parsed JSON:\", jsonData);",
-									"    ",
-									"    // Stocker l'ID de la civilisation s'il existe",
-									"    if (jsonData && jsonData.id) {",
-									"        pm.globals.set(\"civilizationId\", jsonData.id);",
-									"        console.log(\"Civilization ID saved:\", jsonData.id);",
-									"    } else {",
-									"        console.log(\"No civilization ID found in response\");",
-									"    }",
-									"} catch (e) {",
-									"    console.error(\"Error parsing response: \", e);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Empire Romain (Direct)\",\n    \"description\": \"L'Empire romain est l'un des plus grands empires de l'histoire\",\n    \"startDate\": \"0027-01-01\",\n    \"endDate\": \"0476-09-04\"\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8083/civilizations",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8083",
-							"path": [
-								"civilizations"
-							]
-						},
-						"description": "Create a civilization directly through the event service (bypassing gateway)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Civilizations",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/civilizations",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"civilizations"
-							]
-						},
-						"description": "Retrieve all historical civilizations"
 					},
 					"response": []
 				},
@@ -581,7 +727,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Empire Romain (mis à jour)\",\n    \"description\": \"L'Empire romain est l'un des plus grands empires de l'histoire, avec une grande influence culturelle et politique\",\n    \"startDate\": \"0027-01-01\",\n    \"endDate\": \"0476-09-04\"\n}"
+							"raw": "{\n    \"name\": \"Updated Roman Empire\",\n    \"description\": \"The Roman Empire was one of the largest empires in history, with enormous cultural and political influence\",\n    \"startDate\": \"0027-01-01\",\n    \"endDate\": \"0476-09-04\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
@@ -597,6 +743,36 @@
 						"description": "Update an existing civilization's details"
 					},
 					"response": []
+				},
+				{
+					"name": "Delete Civilization",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"civilizations",
+								"{{civilizationId}}"
+							]
+						},
+						"description": "Delete a civilization by ID"
+					},
+					"response": []
 				}
 			],
 			"description": "Endpoints for historical civilization management"
@@ -605,131 +781,419 @@
 			"name": "Event Service",
 			"item": [
 				{
-					"name": "Create Historical Event",
-					"event": [
+					"name": "Public Event Endpoints",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Afficher le résultat brut pour débogage",
-									"console.log(\"Raw response:\", responseBody);",
-									"",
-									"// Vérifier que la réponse est bien du JSON",
-									"try {",
-									"    var jsonData = pm.response.json();",
-									"    console.log(\"Parsed JSON:\", jsonData);",
-									"    ",
-									"    // Stocker l'ID de l'événement s'il existe",
-									"    if (jsonData && jsonData.id) {",
-									"        pm.globals.set(\"eventId\", jsonData.id);",
-									"        console.log(\"Event ID saved:\", jsonData.id);",
-									"    } else {",
-									"        console.log(\"No event ID found in response\");",
-									"    }",
-									"} catch (e) {",
-									"    console.error(\"Error parsing response: \", e);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
+							"name": "Get All Public Events",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/public",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"public"
+									]
+								},
+								"description": "Retrieve all public events without authentication"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Public Event by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/public/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"public",
+										"{{eventId}}"
+									]
+								},
+								"description": "Retrieve a specific public event by ID without authentication"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Public Events by Civilization",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/public/civilization/{{civilizationId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"public",
+										"civilization",
+										"{{civilizationId}}"
+									]
+								},
+								"description": "Retrieve all public events for a specific civilization without authentication"
+							},
+							"response": []
 						}
 					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\": \"Fondation de Rome\",\n    \"description\": \"La légendaire fondation de la ville de Rome\",\n    \"date\": \"0753-04-21\",\n    \"civilizationId\": {{civilizationId}}\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/events",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"events"
-							]
-						},
-						"description": "Create a new historical event associated with a civilization"
-					},
-					"response": []
+					"description": "Public endpoints for accessing events without authentication"
 				},
 				{
-					"name": "Get All Historical Events",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
+					"name": "Private Event Management",
+					"item": [
+						{
+							"name": "Create Historical Event",
+							"event": [
 								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Afficher le résultat brut pour débogage",
+											"console.log(\"Raw response:\", responseBody);",
+											"",
+											"// Vérifier que la réponse est bien du JSON",
+											"try {",
+											"    var jsonData = pm.response.json();",
+											"    console.log(\"Parsed JSON:\", jsonData);",
+											"    ",
+											"    // Stocker l'ID de l'événement s'il existe",
+											"    if (jsonData && jsonData.id) {",
+											"        pm.globals.set(\"eventId\", jsonData.id);",
+											"        console.log(\"Event ID saved:\", jsonData.id);",
+											"    } else {",
+											"        console.log(\"No event ID found in response\");",
+											"    }",
+											"} catch (e) {",
+											"    console.error(\"Error parsing response: \", e);",
+											"}"
+										],
+										"type": "text/javascript"
+									}
 								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/events",
-							"host": [
-								"{{baseUrl}}"
 							],
-							"path": [
-								"api",
-								"events"
-							]
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Foundation of Rome\",\n    \"description\": \"The legendary foundation of the city of Rome\",\n    \"date\": \"0753-04-21\",\n    \"civilizationId\": {{civilizationId}}\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/events",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events"
+									]
+								},
+								"description": "Create a new historical event associated with a civilization"
+							},
+							"response": []
 						},
-						"description": "Retrieve all historical events"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Events By Civilization",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+						{
+							"name": "Get All Historical Events",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events"
+									]
+								},
+								"description": "Retrieve all historical events (requires authentication)"
+							},
+							"response": []
 						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/events/civilization/{{civilizationId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"events",
-								"civilization",
-								"{{civilizationId}}"
-							]
+						{
+							"name": "Get Event by ID",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"{{eventId}}"
+									]
+								},
+								"description": "Retrieve a specific historical event by ID (requires authentication)"
+							},
+							"response": []
 						},
-						"description": "Retrieve all events belonging to a specific civilization"
-					},
-					"response": []
+						{
+							"name": "Get Events By Civilization",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/civilization/{{civilizationId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"civilization",
+										"{{civilizationId}}"
+									]
+								},
+								"description": "Retrieve all events belonging to a specific civilization (requires authentication)"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Event",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Updated Foundation of Rome\",\n    \"description\": \"The legendary foundation of the city of Rome, updated with new historical findings\",\n    \"date\": \"0753-04-21\",\n    \"civilizationId\": {{civilizationId}}\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/events/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"{{eventId}}"
+									]
+								},
+								"description": "Update an existing historical event"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Event",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"{{eventId}}"
+									]
+								},
+								"description": "Delete a historical event by ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Verify Event",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/{{eventId}}/verify",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"{{eventId}}",
+										"verify"
+									]
+								},
+								"description": "Mark an event as verified"
+							},
+							"response": []
+						},
+						{
+							"name": "Search Events (Advanced)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"page\": 0,\n    \"size\": 10,\n    \"sortBy\": \"date\",\n    \"sortDirection\": \"ASC\",\n    \"dateFrom\": \"0000-01-01\",\n    \"dateTo\": \"1000-01-01\",\n    \"keyword\": \"Rome\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/events/search",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"search"
+									]
+								},
+								"description": "Advanced search for events with pagination, filtering and sorting"
+							},
+							"response": []
+						},
+						{
+							"name": "Search Events by Civilization",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"page\": 0,\n    \"size\": 10,\n    \"sortBy\": \"date\",\n    \"sortDirection\": \"ASC\",\n    \"dateFrom\": \"0000-01-01\",\n    \"dateTo\": \"1000-01-01\",\n    \"keyword\": \"Rome\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/events/civilization/{{civilizationId}}/search",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										"civilization",
+										"{{civilizationId}}",
+										"search"
+									]
+								},
+								"description": "Advanced search for events belonging to a specific civilization with pagination, filtering and sorting"
+							},
+							"response": []
+						}
+					],
+					"description": "Private endpoints for managing historical events (requires authentication)"
 				}
 			],
 			"description": "Endpoints for historical events management"
@@ -760,7 +1224,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"authorEmail\": \"utilisateur@example.com\",\n    \"content\": \"Un événement fondateur qui mêle mythe et réalité historique.\",\n    \"eventId\": {{eventId}}\n}"
+							"raw": "{\n    \"authorEmail\": \"utilisateur@example.com\",\n    \"content\": \"A founding event that mixes myth and historical reality.\",\n    \"eventId\": {{eventId}}\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/comments",
@@ -836,7 +1300,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"url\": \"https://example.com/images/rome_foundation.jpg\",\n    \"type\": \"IMAGE\",\n    \"eventId\": {{eventId}}\n}"
+							"raw": "{\n    \"url\": \"https://example.com/image.jpg\",\n    \"title\": \"Roman Colosseum\",\n    \"description\": \"The Colosseum is an oval amphitheatre in Rome, Italy\",\n    \"eventId\": \"{{eventId}}\",\n    \"type\": \"IMAGE\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/media",
@@ -902,19 +1366,19 @@
 									"key": "file",
 									"type": "file",
 									"src": "/path/to/your/image.jpg",
-									"description": "Fichier à télécharger (image ou vidéo)"
+									"description": "File to upload (image or video)"
 								},
 								{
 									"key": "type",
 									"value": "IMAGE",
 									"type": "text",
-									"description": "Type de média (IMAGE ou VIDEO)"
+									"description": "Media type (IMAGE or VIDEO)"
 								},
 								{
 									"key": "eventId",
 									"value": "{{eventId}}",
 									"type": "text",
-									"description": "ID de l'événement associé"
+									"description": "Associated event ID"
 								}
 							]
 						},
@@ -1018,7 +1482,7 @@
 					"response": []
 				}
 			],
-			"description": "Endpoints for managing media (images, videos) associated with historical events"
+			"description": "Endpoints for managing media (images, videos) associated with historical events. Note: All GET requests to media endpoints are now public and do not require authentication."
 		},
 		{
 			"name": "Security Testing",
@@ -1038,28 +1502,7 @@
 								"events"
 							]
 						},
-						"description": "Test accessing protected endpoints without authentication (should fail with 401)"
-					},
-					"response": []
-				},
-				{
-					"name": "Access Media Without Authentication",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/media/event/1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"media",
-								"event",
-								"1"
-							]
-						},
-						"description": "Test accessing media endpoints without authentication (should fail with 401)"
+						"description": "Test accessing protected endpoints without authentication (should now work because of public routes)"
 					},
 					"response": []
 				},
@@ -1086,7 +1529,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Grèce Antique\",\n    \"description\": \"Civilisation grecque antique\",\n    \"startDate\": \"0800-01-01\",\n    \"endDate\": \"0146-01-01\"\n}"
+							"raw": "{\n    \"name\": \"Ancient Greece\",\n    \"description\": \"Ancient Greek civilization\",\n    \"startDate\": \"0800-01-01\",\n    \"endDate\": \"0146-01-01\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/civilizations",

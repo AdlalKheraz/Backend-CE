@@ -40,9 +40,19 @@ public class GatewayRoutesConfig {
                             .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config()));
                 })
                 .uri("http://localhost:8081"))
+            
+            // Route spécifique pour GET /api/media qui redirige vers /all
+            .route("media-service-all", r -> r.path("/api/media").and().method(HttpMethod.GET)
+                .filters(f -> f.rewritePath("/api/media", "/all"))
+                .uri("http://localhost:8082"))
                 
-            // Media service routes - auth required
-            .route("media-service", r -> r.path("/api/media/**")
+            // Media service routes - GET is public, others require auth
+            .route("media-service-public", r -> r.path("/api/media/**").and().method(HttpMethod.GET)
+                .filters(f -> f.stripPrefix(2))
+                .uri("http://localhost:8082"))
+                
+            // Media service protected routes - for POST, PUT, DELETE
+            .route("media-service-protected", r -> r.path("/api/media/**").and().method(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
                 .filters(f -> f.stripPrefix(2)
                               .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
                 .uri("http://localhost:8082"))
@@ -57,13 +67,14 @@ public class GatewayRoutesConfig {
                 .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}"))
                 .uri("http://localhost:8083"))
                 
-            // Protected routes for event service - auth required
-            // Route publique pour les événements publics (sans authentification JWT)
-            .route("event-service-public", r -> r.path("/api/events/public/**")
+            // Public GET routes for all events - no auth required
+            .route("public-events", r -> r.path("/api/events/**").and().method(HttpMethod.GET)
                 .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}"))
                 .uri("http://localhost:8083"))
-            // Route protégée pour les autres endpoints du service d'événements
-            .route("event-service", r -> r.path("/api/events/**", "/api/civilizations/**", "/api/comments/**")
+                
+            // Protected routes for event service - auth required for non-GET operations
+            .route("event-service-protected", r -> r.path("/api/events/**", "/api/civilizations/**", "/api/comments/**")
+                .and().method(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
                 .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}")
                               .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
                 .uri("http://localhost:8083"))

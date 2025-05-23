@@ -77,6 +77,14 @@ public class MediaServiceImpl implements MediaService {
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<MediaResponse> getAllMedia() {
+        return mediaRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
 
     private MediaResponse toResponse(Media media) {
         return MediaResponse.builder()

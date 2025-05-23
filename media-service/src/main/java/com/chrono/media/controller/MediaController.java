@@ -51,6 +51,14 @@ public class MediaController {
         
         return mediaService.uploadMedia(file, request);
     }
+    
+    @GetMapping("/all")
+    public List<MediaResponse> getAllMedia(HttpServletRequest httpRequest) {
+        String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
+        log.info("Récupération de tous les médias par l'utilisateur: {}", userId);
+        
+        return mediaService.getAllMedia();
+    }
 
     @GetMapping("/event/{eventId}")
     public List<MediaResponse> getMediaByEvent(@PathVariable Long eventId, HttpServletRequest httpRequest) {

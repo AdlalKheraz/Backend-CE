@@ -8,3 +8,29 @@ spring.cloud.gateway.routes[2].filters[0]=JwtAuthenticationFilter
 spring.cloud.gateway.routes[2].filters[1]=RewritePath=/api/(?<segment>.*), /
 
 Après la modification, redémarrez votre gateway-service
+
+# Instructions pour le Service de Gateway
+
+Ce service est responsable du routage des requêtes vers les différents microservices ainsi que de l'authentification/autorisation via les tokens JWT.
+
+## Modifications récentes (2023)
+
+1. La route `/api/events/**` est maintenant accessible sans vérification du token JWT pour les opérations GET
+2. La route `/api/media/**` est maintenant accessible sans vérification du token JWT pour les opérations GET
+3. Le fichier Postman a été nettoyé pour refléter ces changements et supprimer les endpoints obsolètes
+
+## Routes publiques (sans authentification)
+
+- `/api/auth/**` - Service d'authentification
+- `/api/events/**` (GET) - Accès aux événements historiques en lecture seule
+- `/api/civilizations/**` (GET) - Accès aux civilisations en lecture seule
+- `/api/comments/**` (GET) - Accès aux commentaires en lecture seule
+- `/api/media/**` (GET) - Accès aux médias en lecture seule
+
+## Routes protégées (avec authentification JWT)
+
+- `/api/users/**` - Gestion des utilisateurs
+- `/api/events/**` (POST, PUT, DELETE) - Modification des événements
+- `/api/civilizations/**` (POST, PUT, DELETE) - Modification des civilisations
+- `/api/comments/**` (POST, PUT, DELETE) - Ajout/modification des commentaires
+- `/api/media/**` (POST, PUT, DELETE) - Ajout/modification des médias
