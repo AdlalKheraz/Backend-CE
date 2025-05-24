@@ -27,7 +27,7 @@ public class MediaClientService {
     private String mediaServiceUrl;
     
     public List<MediaDTO> getMediaByEventId(Long eventId) {
-        String url = mediaServiceUrl + "/event/" + eventId;
+        String url = mediaServiceUrl + "/media/event/" + eventId;
         log.info("Tentative de récupération des médias depuis: {}", url);
         
         try {
