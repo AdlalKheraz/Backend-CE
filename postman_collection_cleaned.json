@@ -692,6 +692,49 @@
 					"name": "Media Management",
 					"item": [
 						{
+							"name": "Add Media by URL",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.status === 'Created') {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.id) {",
+											"        pm.globals.set('mediaId', jsonData.id);",
+											"        console.log('Media ID saved:', jsonData.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"url\": \"https://example.com/image.jpg\",\n    \"title\": \"Colisée romain\",\n    \"description\": \"Photo du Colisée à Rome\",\n    \"type\": \"IMAGE\",\n    \"eventId\": {{eventId}}\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/media",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media"]
+								},
+								"description": "Permet d'ajouter un média à partir d'une URL externe (sans upload de fichier)"
+							}
+						},
+						{
 							"name": "Upload Media",
 							"event": [
 								{
@@ -726,13 +769,8 @@
 											"src": "/path/to/your/file.jpg"
 										},
 										{
-											"key": "title",
-											"value": "Test Media",
-											"type": "text"
-										},
-										{
-											"key": "description",
-											"value": "Description of test media",
+											"key": "type",
+											"value": "IMAGE",
 											"type": "text"
 										},
 										{
@@ -743,10 +781,11 @@
 									]
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/media",
+									"raw": "{{baseUrl}}/api/media/upload",
 									"host": ["{{baseUrl}}"],
-									"path": ["api", "media"]
-								}
+									"path": ["api", "media", "upload"]
+								},
+								"description": "Permet d'uploader un fichier média (image ou vidéo) et de l'associer à un événement"
 							}
 						},
 						{
