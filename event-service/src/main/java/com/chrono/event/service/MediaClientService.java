@@ -57,4 +57,28 @@ public class MediaClientService {
             return Collections.emptyList();
         }
     }
+    
+    /**
+     * Supprime tous les médias associés à un événement.
+     * Cette méthode appelle le service de médias pour supprimer tous les médias liés à l'événement.
+     */
+    public void deleteMediaByEventId(Long eventId) {
+        String url = mediaServiceUrl + "/media/event/" + eventId;
+        log.info("Tentative de suppression des médias pour l'événement {} depuis: {}", eventId, url);
+        
+        try {
+            restTemplate.delete(url);
+            log.info("Suppression réussie des médias pour l'événement {}", eventId);
+        } catch (ResourceAccessException e) {
+            log.error("Impossible d'accéder au service de médias à l'URL {}: {}", url, e.getMessage());
+            throw e;
+        } catch (RestClientException e) {
+            log.error("Erreur lors de la communication avec le service de médias: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Erreur inattendue lors de la suppression des médias pour l'événement {}: {}", 
+                      eventId, e.getMessage(), e);
+            throw e;
+        }
+    }
 } 

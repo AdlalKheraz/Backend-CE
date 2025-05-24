@@ -13,7 +13,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.chrono.event.dto.EventDTO;
 import com.chrono.event.dto.EventFilterDTO;
 import com.chrono.event.dto.PrivateEventDTO;
 import com.chrono.event.entity.Civilization;
@@ -22,9 +21,7 @@ import com.chrono.event.repository.CivilizationRepository;
 import com.chrono.event.repository.EventRepository;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 
 @Service
 public class PrivateEventService {
@@ -34,6 +31,9 @@ public class PrivateEventService {
 
     @Autowired
     private CivilizationRepository civilizationRepository;
+
+    @Autowired
+    private MediaClientService mediaClientService;
 
     /**
      * Crée un nouvel événement avec les informations détaillées
@@ -78,12 +78,22 @@ public class PrivateEventService {
     }
     
     /**
-     * Supprime un événement
+     * Supprime un événement et tous les médias associés
      */
     public void deleteEvent(Long id) {
         if (!eventRepository.existsById(id)) {
             throw new EntityNotFoundException("Event not found with id: " + id);
         }
+        
+        // Supprimer les médias associés à l'événement
+        try {
+            mediaClientService.deleteMediaByEventId(id);
+        } catch (Exception e) {
+            // Log l'erreur mais continue la suppression de l'événement
+            System.err.println("Erreur lors de la suppression des médias de l'événement " + id + ": " + e.getMessage());
+        }
+        
+        // Supprimer l'événement (les commentaires seront supprimés automatiquement grâce à CascadeType.REMOVE)
         eventRepository.deleteById(id);
     }
     

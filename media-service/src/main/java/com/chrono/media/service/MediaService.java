@@ -16,4 +16,5 @@ public interface MediaService {
     List<MediaResponse> getAllMedia();
     MediaResponse getMediaById(Long id);
     void deleteMedia(Long id);
+    void deleteMediaByEvent(Long eventId);
 }

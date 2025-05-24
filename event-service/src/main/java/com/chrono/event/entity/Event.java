@@ -2,7 +2,9 @@ package com.chrono.event.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
@@ -48,6 +51,9 @@ public class Event {
     private String userId;
     private String userRole;
     private String userEmail;
+    
+    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE)
+    private List<Comment> comments;
     
     @PrePersist
     protected void onCreate() {

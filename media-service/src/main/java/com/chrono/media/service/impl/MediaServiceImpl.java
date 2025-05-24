@@ -147,6 +147,36 @@ public class MediaServiceImpl implements MediaService {
         log.info("Média supprimé avec succès");
     }
 
+    @Override
+    public void deleteMediaByEvent(Long eventId) {
+        log.info("Suppression de tous les médias pour l'événement: {}", eventId);
+        
+        List<Media> mediaList = mediaRepository.findByEventId(eventId);
+        
+        if (mediaList.isEmpty()) {
+            log.info("Aucun média trouvé pour l'événement: {}", eventId);
+            return;
+        }
+        
+        log.info("Trouvé {} média(s) à supprimer pour l'événement: {}", mediaList.size(), eventId);
+        
+        // Supprimer les fichiers stockés si ce sont des fichiers uploadés
+        for (Media media : mediaList) {
+            if (media.getUrl().startsWith("/api/media/files/")) {
+                try {
+                    storageService.delete(media.getUrl());
+                    log.info("Fichier supprimé du stockage: {}", media.getUrl());
+                } catch (Exception e) {
+                    log.warn("Erreur lors de la suppression du fichier: {}", e.getMessage());
+                }
+            }
+        }
+        
+        // Supprimer tous les médias de l'événement de la base de données
+        mediaRepository.deleteAll(mediaList);
+        log.info("{} média(s) supprimé(s) avec succès pour l'événement: {}", mediaList.size(), eventId);
+    }
+
     private MediaResponse toMediaResponse(Media media) {
         return MediaResponse.builder()
                 .id(media.getId())

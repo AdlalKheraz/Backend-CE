@@ -136,4 +136,18 @@ public class MediaController {
             throw e;
         }
     }
+
+    @DeleteMapping("/event/{eventId}")
+    public ResponseEntity<Void> deleteMediaByEvent(@PathVariable Long eventId, HttpServletRequest httpRequest) {
+        String userId = (String) httpRequest.getAttribute(USER_ID_ATTRIBUTE);
+        log.info("Suppression de tous les médias de l'événement: {} par l'utilisateur: {}", eventId, userId);
+        
+        try {
+            mediaService.deleteMediaByEvent(eventId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression des médias pour l'événement {}: {}", eventId, e.getMessage(), e);
+            throw e;
+        }
+    }
 }
