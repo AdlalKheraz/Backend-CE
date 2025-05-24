@@ -138,7 +138,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations"]
 								}
-							}
+							},
+							"description": "Récupère toutes les civilisations au format DTO (id, name, description, period) sans les événements associés"
 						},
 						{
 							"name": "Get Civilization by ID",
@@ -150,7 +151,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations", "{{civilizationId}}"]
 								}
-							}
+							},
+							"description": "Récupère une civilisation spécifique au format DTO (id, name, description, period) sans les événements associés"
 						}
 					]
 				},
@@ -555,7 +557,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations"]
 								}
-							}
+							},
+							"description": "Crée une nouvelle civilisation et retourne un DTO avec (id, name, description, period)"
 						},
 						{
 							"name": "Update Civilization",
@@ -580,7 +583,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations", "{{civilizationId}}"]
 								}
-							}
+							},
+							"description": "Met à jour une civilisation existante et retourne un DTO avec (id, name, description, period)"
 						},
 						{
 							"name": "Delete Civilization",
@@ -596,7 +600,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "civilizations", "{{civilizationId}}"]
 								}
-							}
+							},
+							"description": "Supprime une civilisation et tous ses événements associés (cascade). Supprime également les médias et commentaires liés aux événements"
 						}
 					]
 				},

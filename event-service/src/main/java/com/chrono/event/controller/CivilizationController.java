@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.chrono.event.dto.CivilizationDTO;
 import com.chrono.event.entity.Civilization;
 import com.chrono.event.service.CivilizationService;
 
@@ -28,30 +29,30 @@ public class CivilizationController {
     private CivilizationService civilizationService;
 
     @GetMapping
-    public ResponseEntity<List<Civilization>> getAll() {
+    public ResponseEntity<List<CivilizationDTO>> getAll() {
         log.info("Récupération de toutes les civilisations");
-        List<Civilization> civilizations = civilizationService.getAll();
+        List<CivilizationDTO> civilizations = civilizationService.getAllDTO();
         return ResponseEntity.ok(civilizations);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Civilization> getById(@PathVariable Long id) {
+    public ResponseEntity<CivilizationDTO> getById(@PathVariable Long id) {
         log.info("Récupération de la civilisation avec l'ID: {}", id);
-        Civilization civilization = civilizationService.getById(id);
+        CivilizationDTO civilization = civilizationService.getByIdDTO(id);
         return ResponseEntity.ok(civilization);
     }
 
     @PostMapping
-    public ResponseEntity<Civilization> create(@RequestBody Civilization civilization) {
+    public ResponseEntity<CivilizationDTO> create(@RequestBody Civilization civilization) {
         log.info("Création d'une nouvelle civilisation: {}", civilization.getName());
-        Civilization created = civilizationService.create(civilization);
+        CivilizationDTO created = civilizationService.createDTO(civilization);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Civilization> update(@PathVariable Long id, @RequestBody Civilization civilization) {
+    public ResponseEntity<CivilizationDTO> update(@PathVariable Long id, @RequestBody Civilization civilization) {
         log.info("Mise à jour de la civilisation avec l'ID: {}", id);
-        Civilization updated = civilizationService.update(id, civilization);
+        CivilizationDTO updated = civilizationService.updateDTO(id, civilization);
         return ResponseEntity.ok(updated);
     }
 
