@@ -36,9 +36,9 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Comment>> getAllComments() {
+    public ResponseEntity<List<CommentDTO>> getAllComments() {
         log.info("Récupération de tous les commentaires");
-        List<Comment> comments = commentService.getAllComments();
+        List<CommentDTO> comments = commentService.getAllCommentsAsDTO();
         return ResponseEntity.ok(comments);
     }
 

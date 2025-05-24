@@ -3,6 +3,7 @@ package com.chrono.event.service;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -106,5 +107,37 @@ public class CommentService {
         
         log.info("Trouvé {} commentaire(s) au total", allComments.size());
         return allComments;
+    }
+    
+    /**
+     * Récupère tous les commentaires sous forme de DTOs
+     */
+    public List<CommentDTO> getAllCommentsAsDTO() {
+        log.info("Récupération de tous les commentaires sous forme de DTOs");
+        
+        List<Comment> allComments = commentRepository.findAll();
+        
+        if (allComments.isEmpty()) {
+            log.info("Aucun commentaire trouvé dans la base de données");
+            return Collections.emptyList();
+        }
+        
+        log.info("Trouvé {} commentaire(s) au total", allComments.size());
+        return allComments.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Convertit un commentaire en DTO
+     */
+    private CommentDTO convertToDTO(Comment comment) {
+        return CommentDTO.builder()
+                .id(comment.getId())
+                .authorEmail(comment.getAuthorEmail())
+                .content(comment.getContent())
+                .postedAt(comment.getPostedAt())
+                .eventId(comment.getEvent().getId())
+                .build();
     }
 }

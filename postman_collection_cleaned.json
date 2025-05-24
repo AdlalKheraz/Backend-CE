@@ -211,7 +211,20 @@
 									"path": ["api", "comments"]
 								}
 							},
-							"description": "Récupère tous les commentaires sans filtrage par événement"
+							"description": "Récupère tous les commentaires de la plateforme sans filtrage"
+						},
+						{
+							"name": "Get Comments for Event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/comments/event/{{eventId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "comments", "event", "{{eventId}}"]
+								}
+							},
+							"description": "Récupère les commentaires associés à un événement spécifique"
 						}
 					]
 				}
