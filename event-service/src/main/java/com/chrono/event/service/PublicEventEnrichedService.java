@@ -7,14 +7,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.chrono.event.dto.CivilizationDTO;
-import com.chrono.event.dto.CommentDTO;
 import com.chrono.event.dto.PublicEventEnrichedDTO;
-import com.chrono.event.entity.Civilization;
-import com.chrono.event.entity.Comment;
 import com.chrono.event.entity.Event;
 import com.chrono.event.exception.EventNotFoundException;
-import com.chrono.event.repository.CommentRepository;
 import com.chrono.event.repository.EventRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +20,6 @@ public class PublicEventEnrichedService {
 
     @Autowired
     private EventRepository eventRepository;
-    
-    @Autowired
-    private CommentRepository commentRepository;
     
     @Autowired
     private MediaClientService mediaClientService;
@@ -83,58 +75,21 @@ public class PublicEventEnrichedService {
     }
     
     /**
-     * Convertit une entité Event en DTO enrichi
+     * Convertit une entité Event en DTO enrichi avec seulement les médias
      */
     private PublicEventEnrichedDTO convertToEnrichedDTO(Event event) {
-        // Récupération des commentaires
-        List<Comment> comments = commentRepository.findByEventId(event.getId());
-        List<CommentDTO> commentDTOs = comments.stream()
-                .map(this::convertToCommentDTO)
-                .collect(Collectors.toList());
-        
-        // Récupération des médias
+        // Récupération des médias uniquement
         var mediaDTOs = mediaClientService.getMediaByEventId(event.getId());
-        
-        // Conversion de la civilisation
-        Civilization civilization = event.getCivilization();
-        String period = "";
-        if (civilization.getStartDate() != null) {
-            period = civilization.getStartDate().toString();
-            if (civilization.getEndDate() != null) {
-                period += " - " + civilization.getEndDate().toString();
-            }
-        }
-        
-        CivilizationDTO civilizationDTO = CivilizationDTO.builder()
-                .id(civilization.getId())
-                .name(civilization.getName())
-                .description(civilization.getDescription())
-                .period(period)
-                .build();
         
         return PublicEventEnrichedDTO.builder()
                 .id(event.getId())
                 .title(event.getTitle())
                 .description(event.getDescription())
                 .date(event.getDate())
-                .civilization(civilizationDTO)
+                .civilizationId(event.getCivilization().getId())
                 .type(event.getType())
                 .verified(event.isVerified())
-                .comments(commentDTOs)
                 .medias(mediaDTOs)
-                .build();
-    }
-    
-    /**
-     * Convertit une entité Comment en DTO
-     */
-    private CommentDTO convertToCommentDTO(Comment comment) {
-        return CommentDTO.builder()
-                .id(comment.getId())
-                .authorEmail(comment.getAuthorEmail())
-                .content(comment.getContent())
-                .postedAt(comment.getPostedAt())
-                .eventId(comment.getEvent().getId())
                 .build();
     }
 } 

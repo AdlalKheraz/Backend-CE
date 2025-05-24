@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.chrono.event.dto.CommentDTO;
-import com.chrono.event.entity.Comment;
 import com.chrono.event.service.CommentService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +28,9 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<Comment> create(@RequestBody CommentDTO dto) {
+    public ResponseEntity<CommentDTO> create(@RequestBody CommentDTO dto) {
         log.info("Création d'un nouveau commentaire pour l'événement: {}", dto.getEventId());
-        Comment comment = commentService.createComment(dto);
+        CommentDTO comment = commentService.createCommentAndReturnDTO(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(comment);
     }
 
@@ -43,23 +42,23 @@ public class CommentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Comment> getCommentById(@PathVariable Long id) {
+    public ResponseEntity<CommentDTO> getCommentById(@PathVariable Long id) {
         log.info("Récupération du commentaire avec l'ID: {}", id);
-        Comment comment = commentService.getCommentById(id);
+        CommentDTO comment = commentService.getCommentByIdAsDTO(id);
         return ResponseEntity.ok(comment);
     }
 
     @GetMapping("/event/{eventId}")
-    public ResponseEntity<List<Comment>> getByEvent(@PathVariable Long eventId) {
+    public ResponseEntity<List<CommentDTO>> getByEvent(@PathVariable Long eventId) {
         log.info("Récupération des commentaires pour l'événement: {}", eventId);
-        List<Comment> comments = commentService.getByEvent(eventId);
+        List<CommentDTO> comments = commentService.getByEventAsDTO(eventId);
         return ResponseEntity.ok(comments);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Comment> updateComment(@PathVariable Long id, @RequestBody CommentDTO dto) {
+    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long id, @RequestBody CommentDTO dto) {
         log.info("Mise à jour du commentaire avec l'ID: {}", id);
-        Comment updatedComment = commentService.updateComment(id, dto);
+        CommentDTO updatedComment = commentService.updateCommentAndReturnDTO(id, dto);
         return ResponseEntity.ok(updatedComment);
     }
 

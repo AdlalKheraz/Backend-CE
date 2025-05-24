@@ -6,9 +6,6 @@ C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\c
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\EnrichedEventController.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\PrivateEventController.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\PublicEventController.java
-C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\PublicEventEnrichedController.java
-C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\TestController.java
-C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\controller\UserController.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\dto\CivilizationDTO.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\dto\CommentDTO.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\dto\EventDTO.java
@@ -36,6 +33,7 @@ C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\s
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\CommentService.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\EventService.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\impl\CivilizationServiceImpl.java
+C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\impl\EventServiceImpl.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\MediaClientService.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\PrivateEventService.java
 C:\Users\adlal\Desktop\Backend-CE\event-service\src\main\java\com\chrono\event\service\PublicEventEnrichedService.java

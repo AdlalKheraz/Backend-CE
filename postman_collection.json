@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "6b2d7d3c-5b43-4eef-b1c5-7f1c32e8c3e9",
 		"name": "Chrono Explorer API",
-		"description": "Collection complète des endpoints de l'API Chrono Explorer",
+		"description": "Collection complète des endpoints de l'API Chrono Explorer pour la gestion des civilisations, événements historiques, médias et commentaires.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -21,27 +21,38 @@
 		{
 			"key": "userId",
 			"value": "",
-			"type": "string"
+			"type": "string",
+			"description": "ID de l'utilisateur actuel"
+		},
+		{
+			"key": "userEmail",
+			"value": "",
+			"type": "string",
+			"description": "Email de l'utilisateur connecté"
 		},
 		{
 			"key": "civilizationId",
 			"value": "1",
-			"type": "string"
+			"type": "string",
+			"description": "ID de la civilisation sélectionnée"
 		},
 		{
 			"key": "eventId",
 			"value": "1",
-			"type": "string"
+			"type": "string",
+			"description": "ID de l'événement sélectionné"
 		},
 		{
 			"key": "mediaId",
 			"value": "",
-			"type": "string"
+			"type": "string",
+			"description": "ID du média sélectionné"
 		},
 		{
 			"key": "commentId",
 			"value": "",
-			"type": "string"
+			"type": "string",
+			"description": "ID du commentaire sélectionné"
 		}
 	],
 	"item": [
@@ -61,7 +72,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events"]
 								}
-							}
+							},
+							"description": "Récupère tous les événements de base sans enrichissement"
 						},
 						{
 							"name": "Get Event by ID",
@@ -73,7 +85,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "{{eventId}}"]
 								}
-							}
+							},
+							"description": "Récupère un événement spécifique par son ID sans enrichissement"
 						},
 						{
 							"name": "Get Events by Civilization",
@@ -85,7 +98,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "civilization", "{{civilizationId}}"]
 								}
-							}
+							},
+							"description": "Récupère tous les événements d'une civilisation spécifique sans enrichissement"
 						},
 						{
 							"name": "Get All Enriched Events",
@@ -97,7 +111,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "enriched"]
 								}
-							}
+							},
+							"description": "Récupère tous les événements enrichis avec leurs médias associés. Contient uniquement l'ID de la civilisation (pas l'objet complet) et pas de commentaires."
 						},
 						{
 							"name": "Get Enriched Event by ID",
@@ -109,7 +124,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "enriched", "{{eventId}}"]
 								}
-							}
+							},
+							"description": "Récupère un événement enrichi spécifique avec ses médias associés. Contient uniquement l'ID de la civilisation (pas l'objet complet) et pas de commentaires."
 						},
 						{
 							"name": "Get Enriched Events by Civilization",
@@ -121,7 +137,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "enriched", "civilization", "{{civilizationId}}"]
 								}
-							}
+							},
+							"description": "Récupère tous les événements enrichis d'une civilisation spécifique avec leurs médias associés. Contient uniquement l'ID de la civilisation (pas l'objet complet) et pas de commentaires."
 						}
 					]
 				},
@@ -169,7 +186,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media"]
 								}
-							}
+							},
+							"description": "Récupère tous les médias de la plateforme"
 						},
 						{
 							"name": "Get Media by Event",
@@ -181,19 +199,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media", "event", "{{eventId}}"]
 								}
-							}
-						},
-						{
-							"name": "Access Media File",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/media/files/{{filename}}",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "media", "files", "{{filename}}"]
-								}
-							}
+							},
+							"description": "Récupère tous les médias associés à un événement spécifique"
 						}
 					]
 				},
@@ -211,7 +218,7 @@
 									"path": ["api", "comments"]
 								}
 							},
-							"description": "Récupère tous les commentaires de la plateforme sans filtrage"
+							"description": "Récupère tous les commentaires de la plateforme sous forme de DTOs simplifiés (sans les entités Event complètes)"
 						},
 						{
 							"name": "Get Comments for Event",
@@ -224,7 +231,7 @@
 									"path": ["api", "comments", "event", "{{eventId}}"]
 								}
 							},
-							"description": "Récupère les commentaires associés à un événement spécifique"
+							"description": "Récupère les commentaires associés à un événement spécifique sous forme de DTOs simplifiés"
 						}
 					]
 				}
@@ -233,89 +240,149 @@
 		{
 			"name": "🔐 Authentication",
 			"item": [
-				{
-					"name": "Register",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.status === 'Created' || pm.response.status === 'OK') {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.token) {",
-									"        pm.globals.set('token', jsonData.token);",
-									"        console.log('Token saved:', jsonData.token);",
-									"    }",
-									"    if (jsonData.userId) {",
-									"        pm.globals.set('userId', jsonData.userId);",
-									"        console.log('User ID saved:', jsonData.userId);",
-									"    }",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
+									{
+						"name": "Register",
+						"event": [
 							{
-								"key": "Content-Type",
-								"value": "application/json"
+								"listen": "test",
+								"script": {
+									"exec": [
+										"if (pm.response.status === 'Created' || pm.response.status === 'OK') {",
+										"    var jsonData = pm.response.json();",
+										"    if (jsonData.token) {",
+										"        pm.globals.set('token', jsonData.token);",
+										"        console.log('Token saved:', jsonData.token);",
+										"    }",
+										"    // L'API auth retourne l'email mais pas l'ID directement",
+										"    // Nous pouvons donc stocker l'email comme identifiant",
+										"    if (jsonData.email) {",
+										"        // Un vrai ID sera retourné lors d'appels utilisateur ultérieurs",
+										"        pm.globals.set('userEmail', jsonData.email);",
+										"    }",
+										"}"
+									],
+									"type": "text/javascript"
+								}
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+						"request": {
+							"method": "POST",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": {
+								"mode": "raw",
+								"raw": "{\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+							},
+							"url": {
+								"raw": "{{baseUrl}}/api/auth/register",
+								"host": ["{{baseUrl}}"],
+								"path": ["api", "auth", "register"]
+							}
 						},
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/register",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "auth", "register"]
-						}
-					}
+						"description": "Crée un nouveau compte utilisateur et retourne un token JWT avec les informations utilisateur (email, firstName, lastName, role, expiresIn)",
+						"response": [
+							{
+								"name": "Successful registration",
+								"originalRequest": {
+									"method": "POST",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": {
+										"mode": "raw",
+										"raw": "{\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+									},
+									"url": {
+										"raw": "{{baseUrl}}/api/auth/register"
+									}
+								},
+								"status": "OK",
+								"code": 200,
+								"_postman_previewlanguage": "json",
+								"header": [],
+								"cookie": [],
+								"body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"email\": \"testuser@example.com\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"role\": \"USER\",\n    \"expiresIn\": 86400000\n}"
+							}
+						]
 				},
-				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.status === 'OK') {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.token) {",
-									"        pm.globals.set('token', jsonData.token);",
-									"        console.log('Token saved:', jsonData.token);",
-									"    }",
-									"    if (jsonData.userId) {",
-									"        pm.globals.set('userId', jsonData.userId);",
-									"        console.log('User ID saved:', jsonData.userId);",
-									"    }",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
+									{
+						"name": "Login",
+						"event": [
 							{
-								"key": "Content-Type",
-								"value": "application/json"
+								"listen": "test",
+								"script": {
+									"exec": [
+										"if (pm.response.status === 'OK') {",
+										"    var jsonData = pm.response.json();",
+										"    if (jsonData.token) {",
+										"        pm.globals.set('token', jsonData.token);",
+										"        console.log('Token saved:', jsonData.token);",
+										"    }",
+										"    // L'API auth retourne l'email mais pas l'ID directement",
+										"    // Nous pouvons donc stocker l'email comme identifiant",
+										"    if (jsonData.email) {",
+										"        // Un vrai ID sera retourné lors d'appels utilisateur ultérieurs",
+										"        pm.globals.set('userEmail', jsonData.email);",
+										"    }",
+										"}"
+									],
+									"type": "text/javascript"
+								}
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+						"request": {
+							"method": "POST",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": {
+								"mode": "raw",
+								"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+							},
+							"url": {
+								"raw": "{{baseUrl}}/api/auth/login",
+								"host": ["{{baseUrl}}"],
+								"path": ["api", "auth", "login"]
+							}
 						},
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/login",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "auth", "login"]
-						}
-					}
+						"description": "Authentifie un utilisateur et retourne un token JWT avec les informations utilisateur (email, firstName, lastName, role, expiresIn)",
+						"response": [
+							{
+								"name": "Successful login",
+								"originalRequest": {
+									"method": "POST",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": {
+										"mode": "raw",
+										"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+									},
+									"url": {
+										"raw": "{{baseUrl}}/api/auth/login"
+									}
+								},
+								"status": "OK",
+								"code": 200,
+								"_postman_previewlanguage": "json",
+								"header": [],
+								"cookie": [],
+								"body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"email\": \"testuser@example.com\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"role\": \"USER\",\n    \"expiresIn\": 86400000\n}"
+							}
+						]
 				}
 			]
 		},
@@ -339,7 +406,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "me"]
 								}
-							}
+							},
+							"description": "Récupère les informations de l'utilisateur actuellement authentifié"
 						},
 						{
 							"name": "Get All Users (Admin)",
@@ -355,7 +423,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users"]
 								}
-							}
+							},
+							"description": "Récupère la liste de tous les utilisateurs (réservé aux administrateurs)"
 						},
 						{
 							"name": "Get User by ID",
@@ -371,7 +440,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}"]
 								}
-							}
+							},
+							"description": "Récupère les informations d'un utilisateur spécifique par son ID"
 						},
 						{
 							"name": "Update User (Admin)",
@@ -396,7 +466,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}"]
 								}
-							}
+							},
+							"description": "Met à jour les informations d'un utilisateur (réservé aux administrateurs)"
 						},
 						{
 							"name": "Update Own Profile",
@@ -421,7 +492,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "profile"]
 								}
-							}
+							},
+							"description": "Permet à l'utilisateur connecté de mettre à jour son propre profil"
 						},
 						{
 							"name": "Update Profile with Password",
@@ -446,7 +518,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "profile"]
 								}
-							}
+							},
+							"description": "Permet à l'utilisateur connecté de mettre à jour son profil et son mot de passe"
 						},
 						{
 							"name": "Change User Role (Admin)",
@@ -471,7 +544,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}", "role"]
 								}
-							}
+							},
+							"description": "Change le rôle d'un utilisateur (réservé aux administrateurs)"
 						},
 						{
 							"name": "Delete User (Admin or Self)",
@@ -487,7 +561,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "users", "{{userId}}"]
 								}
-							}
+							},
+							"description": "Supprime un utilisateur (nécessite des droits administrateur ou être le propriétaire du compte)"
 						},
 						{
 							"name": "Delete Own Account",
@@ -662,7 +737,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events"]
 								}
-							}
+							},
+							"description": "Crée un nouvel événement historique associé à une civilisation existante"
 						},
 						{
 							"name": "Update Event",
@@ -687,7 +763,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "{{eventId}}"]
 								}
-							}
+							},
+							"description": "Met à jour les informations d'un événement historique existant"
 						},
 						{
 							"name": "Delete Event",
@@ -703,7 +780,8 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "events", "{{eventId}}"]
 								}
-							}
+							},
+							"description": "Supprime un événement et tous ses médias et commentaires associés (cascade)"
 						}
 					]
 				},
@@ -750,61 +828,7 @@
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media"]
 								},
-								"description": "Permet d'ajouter un média à partir d'une URL externe (sans upload de fichier)"
-							}
-						},
-						{
-							"name": "Upload Media",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"if (pm.response.status === 'Created') {",
-											"    var jsonData = pm.response.json();",
-											"    if (jsonData.id) {",
-											"        pm.globals.set('mediaId', jsonData.id);",
-											"        console.log('Media ID saved:', jsonData.id);",
-											"    }",
-											"}"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "file",
-											"type": "file",
-											"src": "/path/to/your/file.jpg"
-										},
-										{
-											"key": "type",
-											"value": "IMAGE",
-											"type": "text"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eventId}}",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/media/upload",
-									"host": ["{{baseUrl}}"],
-									"path": ["api", "media", "upload"]
-								},
-								"description": "Permet d'uploader un fichier média (image ou vidéo) et de l'associer à un événement"
+								"description": "Permet d'ajouter un média à partir d'une URL externe (sans upload de fichier). Les médias ajoutés apparaîtront dans les événements enrichis."
 							}
 						},
 						{
@@ -829,7 +853,8 @@
 									"raw": "{{baseUrl}}/api/media/{{mediaId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media", "{{mediaId}}"]
-								}
+								},
+								"description": "Met à jour les informations d'un média existant"
 							}
 						},
 						{
@@ -845,7 +870,8 @@
 									"raw": "{{baseUrl}}/api/media/{{mediaId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "media", "{{mediaId}}"]
-								}
+								},
+								"description": "Supprime un média. Le média ne sera plus visible dans les événements enrichis."
 							}
 						}
 					]
@@ -886,13 +912,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"content\": \"This is a test comment.\",\n    \"eventId\": {{eventId}}\n}"
+									"raw": "{\n    \"content\": \"This is a test comment.\",\n    \"eventId\": {{eventId}},\n    \"authorEmail\": \"{{userEmail}}\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/api/comments",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments"]
-								}
+								},
+								"description": "Ajoute un commentaire à un événement. Nécessite l'authorEmail qui est obtenu lors de l'authentification. La réponse est un DTO simplifié sans l'objet Event complet."
 							}
 						},
 						{
@@ -917,7 +944,8 @@
 									"raw": "{{baseUrl}}/api/comments/{{commentId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments", "{{commentId}}"]
-								}
+								},
+								"description": "Met à jour le contenu d'un commentaire existant. La réponse est un DTO simplifié."
 							}
 						},
 						{
@@ -933,7 +961,8 @@
 									"raw": "{{baseUrl}}/api/comments/{{commentId}}",
 									"host": ["{{baseUrl}}"],
 									"path": ["api", "comments", "{{commentId}}"]
-								}
+								},
+								"description": "Supprime un commentaire"
 							}
 						}
 					]

@@ -44,6 +44,14 @@ public class CommentService {
         
         return savedComment;
     }
+    
+    /**
+     * Crée un commentaire et retourne un DTO
+     */
+    public CommentDTO createCommentAndReturnDTO(CommentDTO dto) {
+        Comment savedComment = createComment(dto);
+        return convertToDTO(savedComment);
+    }
 
     public List<Comment> getByEvent(Long eventId) {
         log.info("Récupération des commentaires pour l'événement: {}", eventId);
@@ -63,12 +71,30 @@ public class CommentService {
         log.info("Trouvé {} commentaire(s) pour l'événement: {}", comments.size(), eventId);
         return comments;
     }
+    
+    /**
+     * Récupère les commentaires d'un événement sous forme de DTOs
+     */
+    public List<CommentDTO> getByEventAsDTO(Long eventId) {
+        List<Comment> comments = getByEvent(eventId);
+        return comments.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
     public Comment getCommentById(Long id) {
         log.info("Récupération du commentaire avec l'ID: {}", id);
         
         return commentRepository.findById(id)
                 .orElseThrow(() -> new CommentNotFoundException("Commentaire non trouvé avec l'ID: " + id));
+    }
+    
+    /**
+     * Récupère un commentaire par ID sous forme de DTO
+     */
+    public CommentDTO getCommentByIdAsDTO(Long id) {
+        Comment comment = getCommentById(id);
+        return convertToDTO(comment);
     }
 
     public Comment updateComment(Long id, CommentDTO dto) {
@@ -82,6 +108,14 @@ public class CommentService {
         
         log.info("Commentaire mis à jour avec succès");
         return updatedComment;
+    }
+    
+    /**
+     * Met à jour un commentaire et retourne un DTO
+     */
+    public CommentDTO updateCommentAndReturnDTO(Long id, CommentDTO dto) {
+        Comment updatedComment = updateComment(id, dto);
+        return convertToDTO(updatedComment);
     }
 
     public void deleteComment(Long id) {

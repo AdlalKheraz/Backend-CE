@@ -20,15 +20,12 @@ public class PublicEventEnrichedDTO {
     private String description;
     private LocalDate date;
     
-    // Civilisation complète
-    private CivilizationDTO civilization;
+    // Juste l'ID de la civilisation
+    private Long civilizationId;
     
     private EventType type;
     private boolean verified;
     
     // Médias associés
     private List<MediaDTO> medias;
-    
-    // Commentaires associés
-    private List<CommentDTO> comments;
 } 
