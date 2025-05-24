@@ -201,16 +201,17 @@
 					"name": "Comments",
 					"item": [
 						{
-							"name": "Get Comments for Event",
+							"name": "Get All Comments",
 							"request": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/api/comments/event/{{eventId}}",
+									"raw": "{{baseUrl}}/api/comments",
 									"host": ["{{baseUrl}}"],
-									"path": ["api", "comments", "event", "{{eventId}}"]
+									"path": ["api", "comments"]
 								}
-							}
+							},
+							"description": "Récupère tous les commentaires sans filtrage par événement"
 						}
 					]
 				}
