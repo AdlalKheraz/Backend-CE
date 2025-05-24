@@ -1,5 +1,6 @@
 package com.chrono.auth.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,22 +12,22 @@ import com.chrono.auth.dto.AuthResponse;
 import com.chrono.auth.dto.RegisterRequest;
 import com.chrono.auth.service.AuthService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequestMapping("/api/auth")
-@RequiredArgsConstructor
+@RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthService authService;
+    @Autowired
+    private AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+        AuthResponse response = authService.register(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+        AuthResponse response = authService.authenticate(request);
+        return ResponseEntity.ok(response);
     }
 }

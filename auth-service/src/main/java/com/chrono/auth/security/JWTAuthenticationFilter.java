@@ -2,67 +2,88 @@ package com.chrono.auth.security;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.GenericFilter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class JWTAuthenticationFilter extends GenericFilter {
-    private final JWTService jwtService;
-    private final UserDetailsServiceImpl userDetailsService;
+public class JWTAuthenticationFilter extends OncePerRequestFilter {
+    
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+    
+    @Autowired
+    private JWTService jwtService;
+    
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        final HttpServletRequest req = (HttpServletRequest) request;
-        final String authHeader = req.getHeader("Authorization");
-        final String requestUri = req.getRequestURI();
+    protected void doFilterInternal(
+            HttpServletRequest request, 
+            HttpServletResponse response, 
+            FilterChain filterChain) throws ServletException, IOException {
         
-        // Log pour debug
-        log.debug("Request URI: {}, Auth header: {}", requestUri, authHeader != null ? "Present" : "Absent");
+        final String requestURI = request.getRequestURI();
+        log.debug("Requête reçue: {}", requestURI);
         
-        // Skip le filtre pour les chemins publics
-        if (requestUri.startsWith("/api/auth/") || requestUri.equals("/api/test/public")) {
-            chain.doFilter(request, response);
+        // Si c'est une route auth, pas besoin de vérifier le token
+        if (requestURI.startsWith("/auth/")) {
+            log.debug("Route auth, aucune vérification de token nécessaire");
+            filterChain.doFilter(request, response);
             return;
         }
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            chain.doFilter(request, response);
+        
+        // Extraire le token s'il existe
+        final String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+        log.debug("En-tête Authorization: {}", authHeader != null ? 
+                (authHeader.startsWith(BEARER_PREFIX) ? BEARER_PREFIX + "..." : "Invalide") : "Absent");
+        
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+            if (!requestURI.startsWith("/auth/")) {
+                // Pour les routes non-auth, l'absence de token est consignée mais
+                // le filtre continue (la sécurité bloquera ensuite si nécessaire)
+                log.warn("Tentative d'accès sans token JWT à: {}", requestURI);
+            }
+            filterChain.doFilter(request, response);
             return;
         }
-
+        
+        final String jwt = authHeader.substring(BEARER_PREFIX.length());
+        
         try {
-            String jwt = authHeader.substring(7);
-            String email = jwtService.extractEmail(jwt);
+            final String email = jwtService.extractEmail(jwt);
+            log.debug("Email extrait du token: {}", email);
             
+            // Authentifier l'utilisateur s'il n'est pas déjà authentifié
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                log.debug("Utilisateur chargé: {}, rôles: {}", email, userDetails.getAuthorities());
+                
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                        userDetails, null, userDetails.getAuthorities());
+                
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                log.debug("User authenticated: {}", email);
+                
+                log.debug("Utilisateur authentifié avec succès: {}", email);
             }
         } catch (Exception e) {
-            log.error("Erreur lors de la validation du token JWT: {}", e.getMessage());
-            // Ne pas propager l'exception, continuer la chaîne de filtres
-            // pour que Spring Security gère l'erreur d'authentification
+            log.error("Impossible de valider le token JWT: {}", e.getMessage());
+            // Ne pas bloquer ici, la configuration de sécurité s'en chargera
         }
         
-        chain.doFilter(request, response);
+        filterChain.doFilter(request, response);
     }
 }

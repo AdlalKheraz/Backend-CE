@@ -40,21 +40,21 @@ services:
     volumes:
       - media_data:/var/lib/mysql
 
-  mysql-comment:
-    image: mysql:8.0
-    container_name: mysql-comment
-    environment:
-      MYSQL_DATABASE: comment_db
-      MYSQL_USER: chrono
-      MYSQL_PASSWORD: chrono_pass
-      MYSQL_ROOT_PASSWORD: root
+  minio:
+    image: minio/minio:latest
+    container_name: chrono-minio
     ports:
-      - "3310:3306"
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     volumes:
-      - comment_data:/var/lib/mysql
+      - minio_data:/data
+    command: server --console-address ":9001" /data
 
 volumes:
   auth_data:
   event_data:
   media_data:
-  comment_data:
+  minio_data:
