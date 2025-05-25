@@ -138,19 +138,12 @@ public class CivilizationServiceImpl implements CivilizationService {
      * Convertit une entité Civilization en DTO
      */
     private CivilizationDTO convertToDTO(Civilization civilization) {
-        String period = "";
-        if (civilization.getStartDate() != null) {
-            period = civilization.getStartDate().toString();
-            if (civilization.getEndDate() != null) {
-                period += " - " + civilization.getEndDate().toString();
-            }
-        }
-        
         return CivilizationDTO.builder()
                 .id(civilization.getId())
                 .name(civilization.getName())
                 .description(civilization.getDescription())
-                .period(period)
+                .startDate(civilization.getStartDate())
+                .endDate(civilization.getEndDate())
                 .build();
     }
 }
